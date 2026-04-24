@@ -37,3 +37,4 @@ btn.MouseButton1Click:Connect(function()
     sg:Destroy()
     loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/76b1779d41784f4cfe496bedfb0f513c.lua"))()
 end)
+
