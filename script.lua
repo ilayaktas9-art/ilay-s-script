@@ -1,5 +1,5 @@
 local LP = game:GetService("Players").LocalPlayer
-local wl = {"Ilaykingo18", "Ilaykingo18acc5", "h0cker767"}
+local wl = {"Ilaykingo18","h0cker767"}
 local ok = false
 
 for _, v in pairs(wl) do 
