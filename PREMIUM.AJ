@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local LP = Players.LocalPlayer
 
 -- DEINE WHITELIST LOGIK
--- HIER NUR DIE NAMEN REIN, DIE ZUGRIFF HABEN SOLLEN
+-- Nur diese Namen kommen rein:
 local wl = {"Ilaykingo18", "Ilaykingo18acc4", "Abiniz272731"}
 local ok = false
 
@@ -13,19 +13,19 @@ for _, v in ipairs(wl) do
     end 
 end
 
--- WICHTIG: Wenn der Name NICHT in der Liste ist, stoppt das Script SOFORT
+-- KICK-SYSTEM: Wenn nicht auf Whitelist, wird der Spieler sofort gekickt
 if not ok then 
-    warn("ZUGRIFF VERWEIGERT: Du bist nicht auf der Whitelist.")
-    return -- Beendet das gesamte Script, bevor die GUI geladen wird
+    LP:Kick("Not Whitelist - Join the Discord for Access!") -- Hier steht dann die Nachricht beim Kick
+    return -- Stoppt das Script sofort
 end
 
--- ALLES AB HIER WIRD NUR FÜR WHITELISTED USER GELADEN
+-- AB HIER kommt der Rest vom Script (nur für Whitelisted User)
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local PlaceId = game.PlaceId
 
 local sg = Instance.new("ScreenGui", LP:WaitForChild("PlayerGui"))
-sg.Name = "IlayPremiumGui"
+sg.Name = "IlayPremium"
 
 local btn = Instance.new("TextButton", sg)
 btn.Size = UDim2.new(0, 280, 0, 80)
@@ -37,24 +37,20 @@ btn.TextSize = 20
 btn.Font = Enum.Font.GothamBold
 Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 12)
 
--- Funktion für Teleport
+-- Deine Teleport Funktion
 local function teleport()
     btn.Text = "Suche Server..."
     local url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
-    local success, result = pcall(function() return game:HttpGet(url) end)
-
-    if success then
-        local decoded = HttpService:JSONDecode(result)
-        if decoded and decoded.data then
-            for _, server in pairs(decoded.data) do
-                if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                    TeleportService:TeleportToPlaceInstance(PlaceId, server.id, LP)
-                    return
-                end
+    local res = game:HttpGet(url)
+    local decoded = HttpService:JSONDecode(res)
+    if decoded and decoded.data then
+        for _, s in pairs(decoded.data) do
+            if s.playing < s.maxPlayers and s.id ~= game.JobId then
+                TeleportService:TeleportToPlaceInstance(PlaceId, s.id, LP)
+                break
             end
         end
     end
-    btn.Text = "Kein Server gefunden!"
 end
 
 btn.MouseButton1Click:Connect(teleport)
