@@ -5,7 +5,7 @@ local LP = Players.LocalPlayer
 local PlaceId = game.PlaceId
 
 -- DEINE WHITELIST LOGIK
-local wl = {"Ilaykingo18", "Ilaykingo18acc4", "abiniz272731"}
+local wl = {"Ilaykingo18", "Ilaykingo18acc4", "Abiniz272731"}
 local ok = false
 
 for _, v in ipairs(wl) do 
