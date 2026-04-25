@@ -1,4 +1,4 @@
-local LP = game:GetService("Players").LocalPlayer
+ocal LP = game:GetService("Players").LocalPlayer
 
 local sg = Instance.new("ScreenGui", LP.PlayerGui)
 sg.Name = "IlaysScript"
