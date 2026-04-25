@@ -1,0 +1,58 @@
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local LP = game:GetService("Players").LocalPlayer
+local PlaceId = game.PlaceId
+
+-- GUI Setup
+local sg = Instance.new("ScreenGui", LP.PlayerGui)
+local btn = Instance.new("TextButton", sg)
+btn.Size = UDim2.new(0, 220, 0, 60)
+btn.Position = UDim2.new(0.5, -110, 0.2, 0)
+btn.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+btn.Text = "🚀 Auto Join Starten"
+btn.TextColor3 = Color3.new(1, 1, 1)
+btn.TextSize = 18
+btn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", btn)
+
+local function teleport()
+    btn.Text = "Suche Server..."
+    btn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    
+    local success, result = pcall(function()
+        -- Wir holen uns eine zufällige Liste von Servern (Cursor-basiert)
+        return game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100")
+    end)
+
+    if success then
+        local decoded = HttpService:JSONDecode(result)
+        if decoded and decoded.data then
+            local targetServer = nil
+            
+            -- Wir suchen einen Server, der nicht voll ist und nicht unser aktueller
+            for _, server in pairs(decoded.data) do
+                if server.playing and server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    targetServer = server
+                    break
+                end
+            end
+
+            if targetServer then
+                btn.Text = "Server gefunden! 🛰️"
+                TeleportService:TeleportToPlaceInstance(PlaceId, targetServer.id, LP)
+            else
+                btn.Text = "Kein Server frei. Erneut versuchen..."
+                task.wait(1)
+                teleport() -- Nochmal versuchen
+            end
+        end
+    else
+        btn.Text = "Fehler! Warte 2s..."
+        task.wait(2)
+        teleport()
+    end
+end
+
+btn.MouseButton1Click:Connect(function()
+    teleport()
+end)
