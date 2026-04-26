@@ -1,0 +1,231 @@
+--- 67 insta 67
+-- Neon GUI | Big Beams | Desync Original | Server ESP | Brainrot TP
+ 
+-- SERVICES
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local ProximityPromptService = game:GetService("ProximityPromptService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+-- LOAD CHECK
+if _G.Insta67Loaded then return end
+_G.Insta67Loaded = true
+ 
+-- THEME COLOR (Blue)
+local MainColor = Color3.fromRGB(0, 150, 255) -- Leuchtendes Blau
+local DarkBg = Color3.fromRGB(10, 15, 25)
+ 
+-- DEIN ORIGINALER DESYNC (KOMPLETT UNVERÄNDERT)
+local FFlags = {
+    GameNetPVHeaderRotationalVelocityZeroCutoffExponent = -5000,
+    LargeReplicatorWrite5 = true,
+    LargeReplicatorEnabled9 = true,
+    AngularVelociryLimit = 360,
+    TimestepArbiterVelocityCriteriaThresholdTwoDt = 2147483646,
+    S2PhysicsSenderRate = 15000,
+    DisableDPIScale = true,
+    MaxDataPacketPerSend = 2147483647,
+    PhysicsSenderMaxBandwidthBps = 20000,
+    TimestepArbiterHumanoidLinearVelThreshold = 21,
+    MaxMissedWorldStepsRemembered = -2147483648,
+    PlayerHumanoidPropertyUpdateRestrict = true,
+    SimDefaultHumanoidTimestepMultiplier = 0,
+    StreamJobNOUVolumeLengthCap = 2147483647,
+    DebugSendDistInSteps = -2147483648,
+    GameNetDontSendRedundantNumTimes = 1,
+    CheckPVLinearVelocityIntegrateVsDeltaPositionThresholdPercent = 1,
+    CheckPVDifferencesForInterpolationMinVelThresholdStudsPerSecHundredth = 1,
+    LargeReplicatorSerializeRead3 = true,
+    ReplicationFocusNouExtentsSizeCutoffForPauseStuds = 2147483647,
+    CheckPVCachedVelThresholdPercent = 10,
+    CheckPVDifferencesForInterpolationMinRotVelThresholdRadsPerSecHundredth = 1,
+    GameNetDontSendRedundantDeltaPositionMillionth = 1,
+    InterpolationFrameVelocityThresholdMillionth = 5,
+    StreamJobNOUVolumeCap = 2147483647,
+    InterpolationFrameRotVelocityThresholdMillionth = 5,
+    CheckPVCachedRotVelThresholdPercent = 10,
+    WorldStepMax = 30,
+    InterpolationFramePositionThresholdMillionth = 5,
+    TimestepArbiterHumanoidTurningVelThreshold = 1,
+    SimOwnedNOUCountThresholdMillionth = 2147483647,
+    GameNetPVHeaderLinearVelocityZeroCutoffExponent = -5000,
+    NextGenReplicatorEnabledWrite4 = true,
+    TimestepArbiterOmegaThou = 1073741823,
+    MaxAcceptableUpdateDelay = 1,
+    LargeReplicatorSerializeWrite4 = true
+}
+ 
+-- FUNCTIONS
+local ESPFolder, ServerESP, serverPosition, positionConn
+local pos1, pos2
+local beam1, beam2, part1, part2
+ 
+local function ApplyFFlags()
+    for name, value in pairs(FFlags) do
+        pcall(function()
+            setfflag(tostring(name), tostring(value))
+        end)
+    end
+end
+ 
+local function GetRoot()
+    return LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+end
+
+local function RespawnPlayer()
+    local char = LP.Character
+    if not char then return end
+    local hum = char:FindFirstChildWhichIsA("Humanoid")
+    if hum then hum:ChangeState(Enum.HumanoidStateType.Dead) end
+    char:ClearAllChildren()
+    local temp = Instance.new("Model", Workspace)
+    LP.Character = temp
+    task.wait()
+    LP.Character = char
+    temp:Destroy()
+end
+ 
+local function equipVehicle()
+    local char = LP.Character
+    local bp = LP:FindFirstChild("Backpack")
+    if not (char and bp) then return end
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    local items = {"Flying Carpet", "Santa Sleigh", "Witch's Broom"}
+    for _, tool in ipairs(bp:GetChildren()) do
+        for _, name in ipairs(items) do
+            if tool.Name == name then
+                hum:EquipTool(tool)
+                return
+            end
+        end
+    end
+end
+
+local function createBeam(position, index)
+    local hrp = GetRoot()
+    if not hrp then return end
+ 
+    if index == 1 then
+        if beam1 then beam1:Destroy() end
+        if part1 then part1:Destroy() end
+    else
+        if beam2 then beam2:Destroy() end
+        if part2 then part2:Destroy() end
+    end
+
+    local part = Instance.new("Part", Workspace)
+    part.Anchored = true; part.CanCollide = false; part.Transparency = 1; part.CFrame = CFrame.new(position)
+ 
+    local a0 = Instance.new("Attachment", part)
+    local a1 = Instance.new("Attachment", hrp)
+ 
+    local beam = Instance.new("Beam", Workspace)
+    beam.Attachment0 = a0; beam.Attachment1 = a1
+    beam.Width0 = 0.7; beam.Width1 = 0.7; beam.FaceCamera = true
+    beam.Color = ColorSequence.new(MainColor); beam.LightEmission = 1
+ 
+    if index == 1 then beam1, part1 = beam, part else beam2, part2 = beam, part end
+end
+
+-- TARGET POSITIONS
+local targetPositions = {
+    Vector3.new(-481.88, -3.79, 138.02), Vector3.new(-481.75, -3.79, 89.18),
+    Vector3.new(-481.82, -3.79, 30.95), Vector3.new(-481.75, -3.79, -17.79),
+    Vector3.new(-481.80, -3.79, -76.06), Vector3.new(-481.72, -3.79, -124.70),
+    Vector3.new(-337.45, -3.85, -124.72), Vector3.new(-337.37, -3.85, -76.07),
+    Vector3.new(-337.46, -3.79, -17.72), Vector3.new(-337.41, -3.79, 30.92),
+    Vector3.new(-337.32, -3.79, 89.02), Vector3.new(-337.27, -3.79, 137.90)
+}
+ 
+-- GUI CONSTRUCTION
+local gui = Instance.new("ScreenGui", LP.PlayerGui)
+gui.Name = "Insta67UI"
+gui.ResetOnSpawn = false
+ 
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.fromOffset(250, 260)
+frame.Position = UDim2.fromScale(0.5, 0.5)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundColor3 = DarkBg
+frame.Active = true; frame.Draggable = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+Instance.new("UIStroke", frame).Color = MainColor
+ 
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, -10, 0, 34); title.Position = UDim2.fromOffset(5, 5)
+title.BackgroundTransparency = 1; title.Text = "67 insta 67"
+title.Font = Enum.Font.GothamBold; title.TextSize = 18; title.TextColor3 = MainColor
+ 
+local statusLabel = Instance.new("TextLabel", frame)
+statusLabel.Size = UDim2.new(1, -10, 0, 24); statusLabel.Position = UDim2.fromOffset(5, 42)
+statusLabel.BackgroundTransparency = 1; statusLabel.Text = "Status: Public Mode"
+statusLabel.Font = Enum.Font.GothamMedium; statusLabel.TextSize = 14; statusLabel.TextColor3 = MainColor
+ 
+-- BUTTONS
+local function CreateBtn(text, pos, callback)
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(1, -24, 0, 38); btn.Position = UDim2.fromOffset(12, pos)
+    btn.BackgroundColor3 = MainColor; btn.Text = text
+    btn.Font = Enum.Font.GothamBold; btn.TextSize = 16; btn.TextColor3 = Color3.new(1,1,1)
+    Instance.new("UICorner", btn)
+    btn.MouseButton1Click:Connect(callback)
+end
+
+CreateBtn("SET POSITION", 80, function()
+    local hrp = GetRoot()
+    if hrp then
+        pos1 = hrp.CFrame
+        createBeam(pos1.Position, 1)
+        statusLabel.Text = "Status: Position Set"
+    end
+end)
+ 
+CreateBtn("BRAINROT TP", 126, function()
+    local hrp = GetRoot()
+    if hrp then
+        equipVehicle()
+        local seq = {CFrame.new(-348,-7,29), CFrame.new(-346,-7,94), CFrame.new(-333,-5,128)}
+        for _, cf in ipairs(seq) do
+            hrp.Velocity = Vector3.new(0,0,0)
+            hrp.CFrame = cf
+            task.wait(0.12)
+        end
+        statusLabel.Text = "Status: Brainrot Done"
+    end
+end)
+ 
+CreateBtn("ENABLE DESYNC", 172, function()
+    statusLabel.Text = "Status: Desync Active"
+    ApplyFFlags()
+    RespawnPlayer()
+end)
+
+-- AUTO RETURN LOGIC
+ProximityPromptService.PromptButtonHoldEnded:Connect(function(prompt, who)
+    if who ~= LP or not prompt.ActionText:lower():find("steal") then return end
+    task.wait(0.05)
+    local hrp = GetRoot()
+    if hrp and pos1 then
+        hrp.Velocity = Vector3.new(0,0,0)
+        hrp.CFrame = pos1
+    end
+end)
+ 
+-- BEAM TRACKER
+task.spawn(function()
+    while task.wait(1.5) do
+        local hrp = GetRoot()
+        if hrp then
+            local closest, dist = nil, math.huge
+            for _, v in ipairs(targetPositions) do
+                local d = (hrp.Position - v).Magnitude
+                if d < dist then dist = d; closest = v end
+            end
+            if closest and dist < 100 then
+                createBeam(closest, 2)
+            end
+        end
+    end
+end)
