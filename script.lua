@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local LP = Players.LocalPlayer
-local wl = {"Abiniz272731", "Ilaykingo18acc4", "LivaEmir8"}
+local wl = {"Abiniz272731", "Ilaykingo18acc4", "h0cker767"}
 local ok = false
 
 -- Whitelist Check
