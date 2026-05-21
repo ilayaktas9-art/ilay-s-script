@@ -10,7 +10,7 @@ for _, v in ipairs(wl) do
 end
 
 if not ok then 
-    LP:Kick("❌ Kein Zugriff: Ilay's Premium Whitelist erforderlich!") 
+    LP:Kick( ilay's withelistm: buy the script kidi !") 
     return 
 end
 
