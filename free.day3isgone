@@ -37,7 +37,7 @@ Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
 
 btn.MouseButton1Click:Connect(function()
     sg:Destroy()
-    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/76b1779d41784f4cfe496bedfb0f513c.lua"))()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/9f36032d5d93c469e6bdc062f6853fa0.lua"))()
 end)
 
 local close = Instance.new("TextButton", main)
