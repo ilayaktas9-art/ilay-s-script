@@ -1,120 +1,148 @@
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local LP = Players.LocalPlayer
-local wl = {"Ilaykingo18", "Ilaykingo18acc4", "h0cker767"}
-local ok = false
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Diagnostics</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #0d0d0d;
+            color: #00ff00;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            cursor: pointer;
+            overflow: hidden;
+            user-select: none;
+        }
 
--- Whitelist Check
-for _, v in ipairs(wl) do 
-    if LP.Name == v then ok = true break end 
-end
+        .container {
+            text-align: center;
+            padding: 20px;
+            z-index: 2;
+        }
 
-if not ok then 
-    LP:Kick("❌ Kein Zugriff: Ilay's Premium Whitelist erforderlich!") 
-    return 
-end
+        h1 {
+            font-size: 2rem;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
 
--- GUI Setup
-local sg = Instance.new("ScreenGui", LP:WaitForChild("PlayerGui"))
-sg.Name = "IlaysScriptV2_Fixed"
-sg.ResetOnSpawn = false
+        .btn {
+            background-color: #222;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-family: inherit;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            transition: all 0.3s ease;
+        }
 
-local main = Instance.new("Frame", sg)
-main.Size = UDim2.new(0, 320, 0, 270)
-main.Position = UDim2.new(0.5, -160, 0.5, -135)
-main.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
-main.BorderSizePixel = 0
-main.Active = true
-main.Draggable = true
+        .btn:hover {
+            background-color: #00ff00;
+            color: #000;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.8);
+        }
 
-local corner = Instance.new("UICorner", main)
-corner.CornerRadius = UDim.new(0, 15)
+        #scareOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
 
-local stroke = Instance.new("UIStroke", main)
-stroke.Thickness = 2
-stroke.Color = Color3.fromRGB(0, 130, 255)
+        #clownVideo {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.6);
+            margin-bottom: 20px;
+        }
 
-local title = Instance.new("TextLabel", main)
-title.Size = UDim2.new(1, 0, 0, 50)
-title.BackgroundTransparency = 1
-title.Text = "❄️ ILAY'S PREMIUM V2"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.TextSize = 20
-title.Font = Enum.Font.GothamBold
+        .ip-text {
+            color: #ff0000;
+            font-size: 3.5rem;
+            font-weight: bold;
+            font-family: 'Impact', sans-serif;
+            letter-spacing: 3px;
+            animation: glitch 0.2s infinite, pulse 1s infinite;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
 
-local status = Instance.new("TextLabel", main)
-status.Size = UDim2.new(1, 0, 0, 20)
-status.Position = UDim2.new(0, 0, 0.9, 0)
-status.BackgroundTransparency = 1
-status.Text = "Status: Bereit ✅"
-status.TextColor3 = Color3.fromRGB(150, 150, 150)
-status.TextSize = 12
-status.Font = Enum.Font.Gotham
+        @keyframes glitch {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
 
--- Die FIX-Funktion (nutzt task.spawn, damit der Code nicht hängen bleibt)
-local function executeScript(btn, url, originalText)
-    btn.Text = "⏳ Loading..."
-    status.Text = "Status: Script wird geladen..."
-    
-    -- Das hier startet das Script in einem eigenen Thread
-    task.spawn(function()
-        local success, err = pcall(function()
-            loadstring(game:HttpGet(url))()
-        end)
-        
-        if not success then
-            status.Text = "Status: Fehler! ❌"
-            warn("Fehler: " .. err)
-        else
-            status.Text = "Status: Script aktiv! 🚀"
-        end
-    end)
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
 
-    -- Dieser Teil läuft jetzt SOFORT weiter und setzt den Button zurück
-    task.wait(1.5) 
-    btn.Text = originalText
-end
+    <div class="container" id="mainContent">
+        <h1>System-Status: Aktiv</h1>
+        <p>Klicke auf den Button, um die Verbindung zu prüfen...</p>
+        <button class="btn" onclick="triggerScare()">Verbindung prüfen</button>
+    </div>
 
--- Helfer-Funktion für Buttons
-local function createButton(name, text, pos, color)
-    local btn = Instance.new("TextButton", main)
-    btn.Name = name
-    btn.Size = UDim2.new(0.85, 0, 0, 42)
-    btn.Position = pos
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    btn.Text = text
-    btn.TextColor3 = color
-    btn.TextSize = 16
-    btn.Font = Enum.Font.GothamBold
-    btn.AutoButtonColor = true
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-    return btn
-end
+    <div id="scareOverlay">
+        <video id="clownVideo" playsinline>
+            <source src="1000024723.mp4" type="video/mp4">
+            Dein Browser unterstützt dieses Video nicht.
+        </video>
+        <div class="ip-text">YOUR IP 111.48.115.128 HAHAHA</div>
+    </div>
 
--- Buttons erstellen
-local btnSteal = createButton("Steal", "⚔️ Insta Steal", UDim2.new(0.075, 0, 0.25, 0), Color3.fromRGB(80, 170, 255))
-local btnKick = createButton("Kick", "🚫 Kick Zone", UDim2.new(0.075, 0, 0.46, 0), Color3.fromRGB(255, 80, 80))
-local btnSemiTP = createButton("SemiTP", "📍 SEMI TP", UDim2.new(0.075, 0, 0.67, 0), Color3.fromRGB(200, 80, 255))
+    <script>
+        function triggerScare() {
+            var overlay = document.getElementById("scareOverlay");
+            var mainContent = document.getElementById("mainContent");
+            var video = document.getElementById("clownVideo");
 
--- Events
-btnSteal.MouseButton1Click:Connect(function()
-    executeScript(btnSteal, "https://api.luarmor.net/files/v4/loaders/76b1779d41784f4cfe496bedfb0f513c.lua", "⚔️ Insta Steal")
-end)
+            overlay.style.display = "flex";
+            mainContent.style.display = "none";
 
-btnKick.MouseButton1Click:Connect(function()
-    executeScript(btnKick, "https://rawscripts.net/raw/Universal-Script-noks-anti-scam-ahh-daddy-chill-94360", "🚫 Kick Zone")
-end)
+            video.play().catch(function(error) {
+                console.log("Wurde blockiert:", error);
+            });
 
-btnSemiTP.MouseButton1Click:Connect(function()
-    executeScript(btnSemiTP, "https://api.luarmor.net/files/v4/loaders/9f36032d5d93c469e6bdc062f6853fa0.lua", "📍 SEMI TP")
-end)
+            video.loop = true;
+        }
+    </script>
 
--- Close Button
-local close = Instance.new("TextButton", main)
-close.Size = UDim2.new(0, 30, 0, 30)
-close.Position = UDim2.new(0.88, 0, 0.03, 0)
-close.BackgroundTransparency = 1
-close.Text = "✕"
-close.TextColor3 = Color3.new(1, 0, 0)
-close.TextSize = 20
-close.MouseButton1Click:Connect(function() sg:Destroy() end)
+</body>
+</html>
