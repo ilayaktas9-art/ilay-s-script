@@ -1,0 +1,52 @@
+-- SEMI-TP COMPACT AUTO LOADER (Top Right)
+local CoreGui = game:GetService("CoreGui")
+local queue_on_teleport = queue_on_teleport or (syn and syn.queue_on_teleport)
+
+if CoreGui:FindFirstChild("SemiTPCompact") then CoreGui.SemiTPCompact:Destroy() end
+
+-- Skript direkt laden
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeMeowl/SEMI-TP/refs/heads/main/Script.lua'))()
+
+local sgui = Instance.new("ScreenGui", CoreGui)
+sgui.Name = "SemiTPCompact"
+
+local autoBtn = Instance.new("TextButton", sgui)
+autoBtn.Size = UDim2.new(0, 80, 0, 20)
+autoBtn.Position = UDim2.new(0.9, 0, 0.05, 0) -- Oben rechts
+autoBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+autoBtn.BorderSizePixel = 0
+autoBtn.Font = Enum.Font.GothamBold
+autoBtn.TextSize = 10
+Instance.new("UICorner", autoBtn).CornerRadius = UDim.new(0, 4)
+Instance.new("UIStroke", autoBtn).Color = Color3.fromRGB(150, 0, 0)
+
+local autoLoadSemi = false
+local fileName = "SemiTPAutoLoad.txt"
+
+if isfile and isfile(fileName) then autoLoadSemi = readfile(fileName) == "true" end
+
+local function updateUI()
+    autoBtn.Text = autoLoadSemi and "AUTO: ON" or "AUTO: OFF"
+    autoBtn.TextColor3 = autoLoadSemi and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 255, 255)
+end
+
+updateUI()
+
+-- Auto-Load Logik
+if autoLoadSemi and queue_on_teleport then
+    queue_on_teleport([[
+        loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeMeowl/SEMI-TP/refs/heads/main/Script.lua'))()
+    ]])
+end
+
+autoBtn.MouseButton1Click:Connect(function()
+    autoLoadSemi = not autoLoadSemi
+    updateUI()
+    if writefile then writefile(fileName, tostring(autoLoadSemi)) end
+    
+    if autoLoadSemi and queue_on_teleport then
+        queue_on_teleport([[
+            loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeMeowl/SEMI-TP/refs/heads/main/Script.lua'))()
+        ]])
+    end
+end)
