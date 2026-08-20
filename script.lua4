@@ -203,5 +203,3 @@ toggleBtn.MouseButton1Click:Connect(function()
         stopFollowing()
     end
 end)
-
-
