@@ -1,0 +1,174 @@
+-- EYE CONTROLLER | SHARINGAN PROTECTS YOU (Instant-Kick Precision 100%)
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+
+if CoreGui:FindFirstChild("EyeControllerGUI") then CoreGui.EyeControllerGUI:Destroy() end
+
+local corners = {nil, nil, nil, nil}
+local pointParts = {nil, nil, nil, nil}
+local wallFolder = nil
+local isActive = false
+local isLocked = false
+
+-- UI Setup
+local sgui = Instance.new("ScreenGui", CoreGui)
+sgui.Name = "EyeControllerGUI"
+
+local frame = Instance.new("Frame", sgui)
+frame.Size = UDim2.new(0, 170, 0, 250)
+frame.Position = UDim2.new(0.02, 0, 0.2, 0)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+frame.BorderSizePixel = 0
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+local stroke = Instance.new("UIStroke", frame)
+stroke.Color = Color3.fromRGB(200, 0, 0); stroke.Thickness = 2
+
+frame.Active = true; frame.Draggable = true
+frame.ClipsDescendants = true
+
+-- Header
+local header = Instance.new("Frame", frame)
+header.Size = UDim2.new(1, 0, 0, 30)
+header.BackgroundTransparency = 1
+
+local title = Instance.new("TextLabel", header)
+title.Size = UDim2.new(1, -55, 1, 0)
+title.Position = UDim2.new(0, 6, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "SHARINGAN PROTECTS YOU" 
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true 
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+local lockBtn = Instance.new("TextButton", header)
+lockBtn.Size = UDim2.new(0, 22, 0, 22); lockBtn.Position = UDim2.new(1, -50, 0, 4)
+lockBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40); lockBtn.Text = "🔓"
+Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0, 4)
+
+local closeBtn = Instance.new("TextButton", header)
+closeBtn.Size = UDim2.new(0, 22, 0, 22); closeBtn.Position = UDim2.new(1, -25, 0, 4)
+closeBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0); closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.new(1,1,1); Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 4)
+
+lockBtn.MouseButton1Click:Connect(function()
+    isLocked = not isLocked
+    frame.Draggable = not isLocked
+    lockBtn.Text = isLocked and "🔒" or "🔓"
+end)
+
+closeBtn.MouseButton1Click:Connect(function()
+    if wallFolder then wallFolder:Destroy() end
+    for _, p in pairs(pointParts) do if p then p:Destroy() end end
+    sgui:Destroy()
+end)
+
+-- Buttons 1-4
+for i = 1, 4 do
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0.85, 0, 0, 32)
+    btn.Position = UDim2.new(0.075, 0, 0, 38 + (i - 1) * 37)
+    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    btn.Text = "SET " .. i
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamBold
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+    
+    btn.MouseButton1Click:Connect(function()
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            corners[i] = hrp.Position
+            btn.Text = "SET " .. i
+            btn.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
+            
+            if pointParts[i] then pointParts[i]:Destroy() end
+            local p = Instance.new("Part", workspace)
+            p.Shape = Enum.PartType.Ball; p.Size = Vector3.new(1.8, 1.8, 1.8)
+            p.Position = hrp.Position; p.Anchored = true; p.CanCollide = false
+            p.Material = Enum.Material.Neon; p.Color = Color3.fromRGB(255, 0, 0)
+            
+            local bb = Instance.new("BillboardGui", p)
+            bb.Size = UDim2.new(0, 40, 0, 40); bb.StudsOffset = Vector3.new(0, 2, 0)
+            local lbl = Instance.new("TextLabel", bb)
+            lbl.Size = UDim2.new(1, 0, 1, 0); lbl.BackgroundTransparency = 1
+            lbl.Text = tostring(i); lbl.TextColor3 = Color3.new(0, 0, 0)
+            lbl.Font = Enum.Font.GothamBold; lbl.TextSize = 26
+            
+            pointParts[i] = p
+        end
+    end)
+end
+
+-- Activate Button
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(0.85, 0, 0, 35)
+toggle.Position = UDim2.new(0.075, 0, 0, 198)
+toggle.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+toggle.Text = "ACTIVATE"
+toggle.TextColor3 = Color3.new(1,1,1)
+toggle.Font = Enum.Font.GothamBold
+Instance.new("UICorner", toggle).CornerRadius = UDim.new(0, 4)
+
+toggle.MouseButton1Click:Connect(function()
+    isActive = not isActive
+    toggle.Text = isActive and "STOP" or "ACTIVATE"
+    toggle.BackgroundColor3 = isActive and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(150, 0, 0)
+end)
+
+-- Main Loop (100% Instant Precision Check)
+task.spawn(function()
+    while task.wait() do -- Sofortige Abfrage in jedem Frame
+        if isActive and corners[1] and corners[2] and corners[3] and corners[4] then
+            -- Zone mit leichtem Puffer für instant Nachweis an der Wand
+            local padding = 1.5
+            local minX = math.min(corners[1].X, corners[2].X, corners[3].X, corners[4].X) - padding
+            local maxX = math.max(corners[1].X, corners[2].X, corners[3].X, corners[4].X) + padding
+            local minZ = math.min(corners[1].Z, corners[2].Z, corners[3].Z, corners[4].Z) - padding
+            local maxZ = math.max(corners[1].Z, corners[2].Z, corners[3].Z, corners[4].Z) + padding
+            local avgY = (corners[1].Y + corners[2].Y + corners[3].Y + corners[4].Y) / 4
+
+            if not wallFolder then
+                wallFolder = Instance.new("Folder", workspace)
+                local function createW(pos, size)
+                    local w = Instance.new("Part", wallFolder)
+                    w.Anchored = true; w.CanCollide = false 
+                    w.Material = Enum.Material.Neon; w.Color = Color3.fromRGB(255, 0, 0)
+                    w.Transparency = 0.85
+                    w.Size = size; w.Position = pos
+                end
+                local h, t = 12, 0.4
+                local realMinX = minX + padding
+                local realMaxX = maxX - padding
+                local realMinZ = minZ + padding
+                local realMaxZ = maxZ - padding
+                
+                createW(Vector3.new((realMinX + realMaxX)/2, avgY + 6, realMinZ), Vector3.new(realMaxX-realMinX, h, t))
+                createW(Vector3.new((realMinX + realMaxX)/2, avgY + 6, realMaxZ), Vector3.new(realMaxX-realMinX, h, t))
+                createW(Vector3.new(realMinX, avgY + 6, (realMinZ + realMaxZ)/2), Vector3.new(t, h, realMaxZ-realMinZ))
+                createW(Vector3.new(realMaxX, avgY + 6, (realMinZ + realMaxZ)/2), Vector3.new(t, h, realMaxZ-realMinZ))
+            end
+
+            -- High-Precision Target Check
+            for _, player in pairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character then
+                    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+                    local head = player.Character:FindFirstChild("Head")
+                    
+                    local targets = {}
+                    if hrp then table.insert(targets, hrp.Position) end
+                    if head then table.insert(targets, head.Position) end
+
+                    for _, pos in pairs(targets) do
+                        if pos.X >= minX and pos.X <= maxX and pos.Z >= minZ and pos.Z <= maxZ then
+                            LocalPlayer:Kick("[SHARINGAN] Enemy touched boundary!")
+                            break
+                        end
+                    end
+                end
+            end
+        elseif not isActive and wallFolder then
+            wallFolder:Destroy(); wallFolder = nil
+        end
+    end
+end)
