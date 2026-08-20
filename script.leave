@@ -1,0 +1,166 @@
+-- ITACHI HUB | LEAVE, REJOIN, X-RAY & HITBOX ESP
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local TeleportService = game:GetService("TeleportService")
+local Workspace = game:GetService("Workspace")
+
+if CoreGui:FindFirstChild("ItachiHub") then 
+    CoreGui.ItachiHub:Destroy() 
+end
+
+local sgui = Instance.new("ScreenGui", CoreGui)
+sgui.Name = "ItachiHub"
+
+local frame = Instance.new("Frame", sgui)
+frame.Size = UDim2.new(0, 150, 0, 150)
+frame.Position = UDim2.new(0.02, 0, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+local stroke = Instance.new("UIStroke", frame)
+stroke.Color = Color3.fromRGB(150, 0, 0)
+stroke.Thickness = 2
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 25)
+title.BackgroundTransparency = 1
+title.Text = "ITACHI"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 13
+
+-- LEAVE BUTTON
+local leaveBtn = Instance.new("TextButton", frame)
+leaveBtn.Size = UDim2.new(0.85, 0, 0, 30)
+leaveBtn.Position = UDim2.new(0.075, 0, 0, 30)
+leaveBtn.BackgroundColor3 = Color3.fromRGB(180, 30, 30)
+leaveBtn.Text = "LEAVE"
+leaveBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+leaveBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", leaveBtn).CornerRadius = UDim.new(0, 4)
+
+leaveBtn.MouseButton1Click:Connect(function()
+    LocalPlayer:Kick("Sharingan leave you")
+end)
+
+-- REJOIN BUTTON
+local rejoinBtn = Instance.new("TextButton", frame)
+rejoinBtn.Size = UDim2.new(0.85, 0, 0, 30)
+rejoinBtn.Position = UDim2.new(0.075, 0, 0, 68)
+rejoinBtn.BackgroundColor3 = Color3.fromRGB(30, 120, 30)
+rejoinBtn.Text = "REJOIN"
+rejoinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+rejoinBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", rejoinBtn).CornerRadius = UDim.new(0, 4)
+
+rejoinBtn.MouseButton1Click:Connect(function()
+    if #Players:GetPlayers() <= 1 then
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    else
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+    end
+end)
+
+-- ESP & X-RAY BUTTON
+local espBtn = Instance.new("TextButton", frame)
+espBtn.Size = UDim2.new(0.85, 0, 0, 30)
+espBtn.Position = UDim2.new(0.075, 0, 0, 106)
+espBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+espBtn.Text = "ESP/XRAY OFF"
+espBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+espBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", espBtn).CornerRadius = UDim.new(0, 4)
+
+local espEnabled = false
+local originalTransparencies = {}
+
+-- Hitbox & Highlight Anwenden
+local function applyHitboxESP(player)
+    if player == LocalPlayer then return end
+    local char = player.Character
+    if not char then return end
+    
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        -- Hitbox vergrößern & sichtbar durch Wände machen
+        hrp.Size = Vector3.new(4, 5, 4)
+        hrp.Transparency = 0.7
+        hrp.Color = Color3.fromRGB(255, 0, 0)
+        hrp.Material = Enum.Material.Neon
+        hrp.CanCollide = false
+    end
+    
+    -- X-Ray Highlight (Wallhack)
+    if not char:FindFirstChild("ItachiHighlight") then
+        local hl = Instance.new("Highlight", char)
+        hl.Name = "ItachiHighlight"
+        hl.FillColor = Color3.fromRGB(255, 0, 0)
+        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+        hl.FillTransparency = 0.4
+        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    end
+end
+
+-- Map X-Ray Toggle
+local function toggleMapXray(enable)
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and not obj:IsDescendantOf(LocalPlayer.Character) then
+            local isPlayerPart = false
+            for _, p in pairs(Players:GetPlayers()) do
+                if p.Character and obj:IsDescendantOf(p.Character) then
+                    isPlayerPart = true
+                    break
+                end
+            end
+            
+            if not isPlayerPart then
+                if enable then
+                    if originalTransparencies[obj] == nil then
+                        originalTransparencies[obj] = obj.Transparency
+                    end
+                    obj.Transparency = 0.55
+                else
+                    if originalTransparencies[obj] ~= nil then
+                        obj.Transparency = originalTransparencies[obj]
+                    end
+                end
+            end
+        end
+    end
+end
+
+espBtn.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    espBtn.Text = espEnabled and "ESP/XRAY ON" or "ESP/XRAY OFF"
+    espBtn.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(100, 100, 100)
+    
+    toggleMapXray(espEnabled)
+    
+    if espEnabled then
+        for _, p in pairs(Players:GetPlayers()) do
+            applyHitboxESP(p)
+            p.CharacterAdded:Connect(function()
+                task.wait(0.5)
+                if espEnabled then applyHitboxESP(p) end
+            end)
+        end
+    else
+        -- Hitboxen & Highlights zurücksetzen
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer and p.Character then
+                local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    hrp.Size = Vector3.new(2, 2, 1)
+                    hrp.Transparency = 1
+                end
+                local hl = p.Character:FindFirstChild("ItachiHighlight")
+                if hl then hl:Destroy() end
+            end
+        end
+        originalTransparencies = {}
+    end
+end)
