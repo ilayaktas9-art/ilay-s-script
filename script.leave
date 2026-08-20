@@ -1,4 +1,4 @@
--- ITACHI HUB | LEAVE, REJOIN, X-RAY & HITBOX ESP
+-- ITACHI HUB | LEAVE, REJOIN, X-RAY & HITBOX ESP (With Red Minimize & Working Auto-Load)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
@@ -13,25 +13,70 @@ local sgui = Instance.new("ScreenGui", CoreGui)
 sgui.Name = "ItachiHub"
 
 local frame = Instance.new("Frame", sgui)
-frame.Size = UDim2.new(0, 150, 0, 150)
+frame.Size = UDim2.new(0, 150, 0, 185)
 frame.Position = UDim2.new(0.02, 0, 0.4, 0)
 frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
+frame.ClipsDescendants = true
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
 local stroke = Instance.new("UIStroke", frame)
 stroke.Color = Color3.fromRGB(150, 0, 0)
 stroke.Thickness = 2
 
-local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, 0, 0, 25)
+-- Header
+local header = Instance.new("Frame", frame)
+header.Size = UDim2.new(1, 0, 0, 25)
+header.BackgroundTransparency = 1
+
+local title = Instance.new("TextLabel", header)
+title.Size = UDim2.new(1, -55, 1, 0)
+title.Position = UDim2.new(0, 8, 0, 0)
 title.BackgroundTransparency = 1
 title.Text = "ITACHI"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 13
+title.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Header Buttons
+local minBtn = Instance.new("TextButton", header)
+minBtn.Size = UDim2.new(0, 18, 0, 18)
+minBtn.Position = UDim2.new(1, -44, 0, 3)
+minBtn.BackgroundColor3 = Color3.fromRGB(180, 30, 30)
+minBtn.Text = "-"
+minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+minBtn.Font = Enum.Font.GothamBold
+minBtn.TextSize = 14
+Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 4)
+
+local closeBtn = Instance.new("TextButton", header)
+closeBtn.Size = UDim2.new(0, 18, 0, 18)
+closeBtn.Position = UDim2.new(1, -22, 0, 3)
+closeBtn.BackgroundColor3 = Color3.fromRGB(120, 20, 20)
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 11
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 4)
+
+closeBtn.MouseButton1Click:Connect(function()
+    sgui:Destroy()
+end)
+
+local isMinimized = false
+minBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        frame.Size = UDim2.new(0, 150, 0, 25)
+        minBtn.Text = "+"
+    else
+        frame.Size = UDim2.new(0, 150, 0, 185)
+        minBtn.Text = "-"
+    end
+end)
 
 -- LEAVE BUTTON
 local leaveBtn = Instance.new("TextButton", frame)
@@ -75,10 +120,41 @@ espBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 espBtn.Font = Enum.Font.GothamBold
 Instance.new("UICorner", espBtn).CornerRadius = UDim.new(0, 4)
 
+-- AUTO LOAD BUTTON
+local autoBtn2 = Instance.new("TextButton", frame)
+autoBtn2.Size = UDim2.new(0.85, 0, 0, 28)
+autoBtn2.Position = UDim2.new(0.075, 0, 0, 145)
+autoBtn2.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+autoBtn2.Text = "AUTO LOAD: OFF"
+autoBtn2.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoBtn2.Font = Enum.Font.GothamBold
+autoBtn2.TextSize = 10
+Instance.new("UICorner", autoBtn2).CornerRadius = UDim.new(0, 4)
+
+local autoLoadItachi = false
+local itachiFile = "ItachiHubAutoLoad.txt"
+if isfile and isfile(itachiFile) then autoLoadItachi = readfile(itachiFile) == "true" end
+
+local function updateItachiAutoUI()
+    autoBtn2.Text = autoLoadItachi and "AUTO LOAD: ON" or "AUTO LOAD: OFF"
+    autoBtn2.BackgroundColor3 = autoLoadItachi and Color3.fromRGB(0, 140, 0) or Color3.fromRGB(60, 60, 60)
+end
+updateItachiAutoUI()
+
+autoBtn2.MouseButton1Click:Connect(function()
+    autoLoadItachi = not autoLoadItachi
+    updateItachiAutoUI()
+    if writefile then writefile(itachiFile, tostring(autoLoadItachi)) end
+    if autoLoadItachi and queue_on_teleport then
+        queue_on_teleport([[
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.leave?v="..math.random()))()
+        ]])
+    end
+end)
+
 local espEnabled = false
 local originalTransparencies = {}
 
--- Hitbox & Highlight Anwenden
 local function applyHitboxESP(player)
     if player == LocalPlayer then return end
     local char = player.Character
@@ -86,7 +162,6 @@ local function applyHitboxESP(player)
     
     local hrp = char:FindFirstChild("HumanoidRootPart")
     if hrp then
-        -- Hitbox vergrößern & sichtbar durch Wände machen
         hrp.Size = Vector3.new(4, 5, 4)
         hrp.Transparency = 0.7
         hrp.Color = Color3.fromRGB(255, 0, 0)
@@ -94,7 +169,6 @@ local function applyHitboxESP(player)
         hrp.CanCollide = false
     end
     
-    -- X-Ray Highlight (Wallhack)
     if not char:FindFirstChild("ItachiHighlight") then
         local hl = Instance.new("Highlight", char)
         hl.Name = "ItachiHighlight"
@@ -105,7 +179,6 @@ local function applyHitboxESP(player)
     end
 end
 
--- Map X-Ray Toggle
 local function toggleMapXray(enable)
     for _, obj in pairs(Workspace:GetDescendants()) do
         if obj:IsA("BasePart") and not obj:IsDescendantOf(LocalPlayer.Character) then
@@ -149,7 +222,6 @@ espBtn.MouseButton1Click:Connect(function()
             end)
         end
     else
-        -- Hitboxen & Highlights zurücksetzen
         for _, p in pairs(Players:GetPlayers()) do
             if p ~= LocalPlayer and p.Character then
                 local hrp = p.Character:FindFirstChild("HumanoidRootPart")
