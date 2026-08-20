@@ -1,0 +1,247 @@
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+------------------------------------------------------------------
+-- EINSTELLUNGEN
+------------------------------------------------------------------
+local CORRECT_KEY = "THE_UCHIA_CALN"
+local TIKTOK_LINK = "https://www.tiktok.com/@ilay.aktas?_r=1&_t=ZG-9927y7wTqzo"
+
+-- ESP Variablen
+local espEnabled = false
+local activeESPParts = {}
+
+-- Clean up alter Instanzen
+if CoreGui:FindFirstChild("UchiaEspGui") then
+    CoreGui.UchiaEspGui:Destroy()
+end
+
+-- ScreenGui Erstellung
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "UchiaEspGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = CoreGui
+
+-- DRAG SYSTEM (Touch & Maus Unterstützung)
+local function makeDraggable(guiElement)
+    local dragging, dragInput, dragStart, startPos
+
+    guiElement.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = guiElement.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    guiElement.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            guiElement.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+------------------------------------------------------------------
+-- 1. KEY SYSTEM GUI
+------------------------------------------------------------------
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.new(0, 240, 0, 140)
+keyFrame.Position = UDim2.new(0.5, -120, 0.4, -70)
+keyFrame.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
+keyFrame.BorderSizePixel = 2
+keyFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+keyFrame.Active = true
+keyFrame.Parent = screenGui
+
+makeDraggable(keyFrame)
+
+local keyTitle = Instance.new("TextLabel")
+keyTitle.Size = UDim2.new(1, 0, 0, 30)
+keyTitle.BackgroundTransparency = 1
+keyTitle.Text = "UCHIA KEY SYSTEM"
+keyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTitle.Font = Enum.Font.SourceSansBold
+keyTitle.TextSize = 15
+keyTitle.Parent = keyFrame
+
+local keyTextBox = Instance.new("TextBox")
+keyTextBox.Size = UDim2.new(0.85, 0, 0, 30)
+keyTextBox.Position = UDim2.new(0.075, 0, 0.28, 0)
+keyTextBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+keyTextBox.BorderSizePixel = 1
+keyTextBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
+keyTextBox.PlaceholderText = "Enter Key Here..."
+keyTextBox.Text = ""
+keyTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTextBox.Font = Enum.Font.SourceSans
+keyTextBox.TextSize = 13
+keyTextBox.Parent = keyFrame
+
+local btnGetKey = Instance.new("TextButton")
+btnGetKey.Size = UDim2.new(0.4, 0, 0, 30)
+btnGetKey.Position = UDim2.new(0.075, 0, 0.65, 0)
+btnGetKey.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+btnGetKey.BorderColor3 = Color3.fromRGB(0, 0, 0)
+btnGetKey.Text = "Get Key"
+btnGetKey.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnGetKey.Font = Enum.Font.SourceSansBold
+btnGetKey.TextSize = 13
+btnGetKey.Parent = keyFrame
+
+local btnUnlock = Instance.new("TextButton")
+btnUnlock.Size = UDim2.new(0.4, 0, 0, 30)
+btnUnlock.Position = UDim2.new(0.525, 0, 0.65, 0)
+btnUnlock.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+btnUnlock.BorderColor3 = Color3.fromRGB(0, 0, 0)
+btnUnlock.Text = "Unlock"
+btnUnlock.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnUnlock.Font = Enum.Font.SourceSansBold
+btnUnlock.TextSize = 13
+btnUnlock.Parent = keyFrame
+
+------------------------------------------------------------------
+-- 2. ESP MENU (Sichtbar nach Key-Eingabe)
+------------------------------------------------------------------
+local openBtn = Instance.new("TextButton")
+openBtn.Size = UDim2.new(0, 100, 0, 40)
+openBtn.Position = UDim2.new(0, 10, 0.5, 0)
+openBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+openBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+openBtn.Text = "Open ESP"
+openBtn.Font = Enum.Font.SourceSansBold
+openBtn.Visible = false
+openBtn.Parent = screenGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 120)
+frame.Position = UDim2.new(0.5, -100, 0.5, -60)
+frame.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+frame.Active = true
+frame.Visible = false
+frame.Parent = screenGui
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundTransparency = 1
+title.Text = "UCHIA ESP"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.Parent = frame
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0.8, 0, 0, 40)
+toggleBtn.Position = UDim2.new(0.1, 0, 0.4, 0)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+toggleBtn.Text = "ESP: OFF"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 50, 50)
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.Parent = frame
+
+makeDraggable(frame)
+makeDraggable(openBtn)
+
+------------------------------------------------------------------
+-- LOGIK & EVENTS
+------------------------------------------------------------------
+
+-- Link kopieren
+btnGetKey.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(TIKTOK_LINK)
+        btnGetKey.Text = "Copied!"
+        task.wait(1.5)
+        btnGetKey.Text = "Get Key"
+    else
+        btnGetKey.Text = "Copied!"
+    end
+end)
+
+-- Key überprüfen
+btnUnlock.MouseButton1Click:Connect(function()
+    local enteredText = string.gsub(keyTextBox.Text, "^%s*(.-)%s*$", "%1")
+    enteredText = string.upper(enteredText)
+
+    if enteredText == string.upper(CORRECT_KEY) then
+        keyFrame:Destroy()
+        openBtn.Visible = true
+    else
+        btnUnlock.Text = "Wrong Key!"
+        btnUnlock.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+        task.wait(1.5)
+        btnUnlock.Text = "Unlock"
+        btnUnlock.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    end
+end)
+
+-- Open Button Toggle
+openBtn.MouseButton1Click:Connect(function() 
+    frame.Visible = not frame.Visible 
+end)
+
+-- ESP Logik
+local function createBox(player)
+    if player == LocalPlayer or not player.Character then return end
+    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+    if hrp and not hrp:FindFirstChild("ESP_BOX") then
+        local box = Instance.new("BoxHandleAdornment")
+        box.Name = "ESP_BOX"
+        box.Size = hrp.Size
+        box.Color3 = Color3.fromRGB(255, 0, 0)
+        box.Transparency = 0.4
+        box.AlwaysOnTop = true
+        box.ZIndex = 10
+        box.Adornee = hrp
+        box.Parent = hrp
+        activeESPParts[player.Name] = box
+    end
+end
+
+local function removeESP(player)
+    if activeESPParts[player.Name] then
+        activeESPParts[player.Name]:Destroy()
+        activeESPParts[player.Name] = nil
+    end
+end
+
+toggleBtn.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    if espEnabled then
+        toggleBtn.Text = "ESP: ON"
+        toggleBtn.TextColor3 = Color3.fromRGB(0, 255, 0)
+        for _, p in pairs(Players:GetPlayers()) do createBox(p) end
+    else
+        toggleBtn.Text = "ESP: OFF"
+        toggleBtn.TextColor3 = Color3.fromRGB(255, 50, 50)
+        for _, p in pairs(Players:GetPlayers()) do removeESP(p) end
+    end
+end)
+
+-- Updates für neue Spieler / Respawns
+Players.PlayerAdded:Connect(function(p) 
+    p.CharacterAdded:Connect(function() 
+        if espEnabled then 
+            task.wait(0.5)
+            createBox(p) 
+        end 
+    end) 
+end)
+
+Players.PlayerRemoving:Connect(removeESP)
