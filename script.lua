@@ -1,120 +1,286 @@
+local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local LP = Players.LocalPlayer
-local wl = {"Abiniz272731", "Ilaykingo18acc4", "h0cker767"}
-local ok = false
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
--- Whitelist Check
-for _, v in ipairs(wl) do 
-    if LP.Name == v then ok = true break end 
-end
+-- SETZE HIER DEINE BILD-ID EIN:
+local BACKGROUND_IMAGE_ID = "rbxassetid://1234567890" 
 
-if not ok then 
-    LP:Kick( ilay's withelist: buy the script kidi !") 
-    return 
-end
+-- KEY EINSTELLUNG
+local CORRECT_KEY = "THE_UCHIA_CALN"
+local TIKTOK_LINK = "https://www.tiktok.com/@ilay.aktas?_r=1&_t=ZG-9927y7wTqzo"
 
--- GUI Setup
-local sg = Instance.new("ScreenGui", LP:WaitForChild("PlayerGui"))
-sg.Name = "IlaysScriptV2_Fixed"
-sg.ResetOnSpawn = false
+-- Fly Settings
+local flying = false
+local flySpeed = 50
+local maxSpeed = 100
+local minSpeed = 0
+local moveUp = false
+local moveDown = false
 
-local main = Instance.new("Frame", sg)
-main.Size = UDim2.new(0, 320, 0, 270)
-main.Position = UDim2.new(0.5, -160, 0.5, -135)
-main.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
-main.BorderSizePixel = 0
-main.Active = true
-main.Draggable = true
+-- ScreenGui Erstellung
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "UchiaFlyGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
-local corner = Instance.new("UICorner", main)
-corner.CornerRadius = UDim.new(0, 15)
-
-local stroke = Instance.new("UIStroke", main)
-stroke.Thickness = 2
-stroke.Color = Color3.fromRGB(0, 130, 255)
-
-local title = Instance.new("TextLabel", main)
-title.Size = UDim2.new(1, 0, 0, 50)
-title.BackgroundTransparency = 1
-title.Text = "❄️ ILAY'S PREMIUM V2"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.TextSize = 20
-title.Font = Enum.Font.GothamBold
-
-local status = Instance.new("TextLabel", main)
-status.Size = UDim2.new(1, 0, 0, 20)
-status.Position = UDim2.new(0, 0, 0.9, 0)
-status.BackgroundTransparency = 1
-status.Text = "Status: Bereit ✅"
-status.TextColor3 = Color3.fromRGB(150, 150, 150)
-status.TextSize = 12
-status.Font = Enum.Font.Gotham
-
--- Die FIX-Funktion (nutzt task.spawn, damit der Code nicht hängen bleibt)
-local function executeScript(btn, url, originalText)
-    btn.Text = "⏳ Loading..."
-    status.Text = "Status: Script wird geladen..."
+-- DRAG SYSTEM HILFSFUNKTION
+local function makeDraggable(guiElement, dragHandle)
+    dragHandle = dragHandle or guiElement
+    local dragging, dragInput, dragStart, startPos
     
-    -- Das hier startet das Script in einem eigenen Thread
-    task.spawn(function()
-        local success, err = pcall(function()
-            loadstring(game:HttpGet(url))()
-        end)
-        
-        if not success then
-            status.Text = "Status: Fehler! ❌"
-            warn("Fehler: " .. err)
-        else
-            status.Text = "Status: Script aktiv! 🚀"
+    dragHandle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = guiElement.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
         end
     end)
 
-    -- Dieser Teil läuft jetzt SOFORT weiter und setzt den Button zurück
-    task.wait(1.5) 
-    btn.Text = originalText
+    dragHandle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            guiElement.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
 end
 
--- Helfer-Funktion für Buttons
-local function createButton(name, text, pos, color)
-    local btn = Instance.new("TextButton", main)
-    btn.Name = name
-    btn.Size = UDim2.new(0.85, 0, 0, 42)
-    btn.Position = pos
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+------------------------------------------------------------------
+-- 1. KEY SYSTEM GUI
+------------------------------------------------------------------
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.new(0, 220, 0, 140)
+keyFrame.Position = UDim2.new(0.5, -110, 0.4, -70)
+keyFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+keyFrame.BorderSizePixel = 2
+keyFrame.BorderColor3 = Color3.fromRGB(150, 0, 0)
+keyFrame.Active = true
+keyFrame.Parent = screenGui
+
+makeDraggable(keyFrame)
+
+-- Titel
+local keyTitle = Instance.new("TextLabel")
+keyTitle.Size = UDim2.new(1, 0, 0, 30)
+keyTitle.BackgroundTransparency = 1
+keyTitle.Text = "UCHIA KEY SYSTEM"
+keyTitle.TextColor3 = Color3.fromRGB(255, 50, 50)
+keyTitle.Font = Enum.Font.SourceSansBold
+keyTitle.TextSize = 14
+keyTitle.Parent = keyFrame
+
+-- Text-Eingabefeld
+local keyTextBox = Instance.new("TextBox")
+keyTextBox.Size = UDim2.new(0.85, 0, 0, 30)
+keyTextBox.Position = UDim2.new(0.075, 0, 0.28, 0)
+keyTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+keyTextBox.BorderSizePixel = 1
+keyTextBox.BorderColor3 = Color3.fromRGB(100, 100, 100)
+keyTextBox.PlaceholderText = "Enter Key Here..."
+keyTextBox.Text = ""
+keyTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTextBox.Font = Enum.Font.SourceSans
+keyTextBox.TextSize = 12
+keyTextBox.Parent = keyFrame
+
+-- Get Key Button (Link kopieren)
+local btnGetKey = Instance.new("TextButton")
+btnGetKey.Size = UDim2.new(0.4, 0, 0, 30)
+btnGetKey.Position = UDim2.new(0.075, 0, 0.65, 0)
+btnGetKey.BackgroundColor3 = Color3.fromRGB(30, 30, 80)
+btnGetKey.BorderColor3 = Color3.fromRGB(0, 100, 255)
+btnGetKey.Text = "Get Key"
+btnGetKey.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnGetKey.Font = Enum.Font.SourceSansBold
+btnGetKey.TextSize = 12
+btnGetKey.Parent = keyFrame
+
+-- Unlock Button
+local btnUnlock = Instance.new("TextButton")
+btnUnlock.Size = UDim2.new(0.4, 0, 0, 30)
+btnUnlock.Position = UDim2.new(0.525, 0, 0.65, 0)
+btnUnlock.BackgroundColor3 = Color3.fromRGB(30, 80, 30)
+btnUnlock.BorderColor3 = Color3.fromRGB(0, 255, 100)
+btnUnlock.Text = "Unlock"
+btnUnlock.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnUnlock.Font = Enum.Font.SourceSansBold
+btnUnlock.TextSize = 12
+btnUnlock.Parent = keyFrame
+
+------------------------------------------------------------------
+-- 2. HAUPT FLY GUI (Wird erst nach Unlock sichtbar)
+------------------------------------------------------------------
+local w = 48 
+local h = 27 
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, w * 4, 0, h * 3)
+mainFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
+mainFrame.BackgroundTransparency = 1
+mainFrame.Active = true
+mainFrame.Visible = false -- Standardmäßig unsichtbar
+mainFrame.Parent = screenGui
+
+makeDraggable(mainFrame)
+
+-- HINTERGRUNDBILD
+local bgImage = Instance.new("ImageLabel")
+bgImage.Size = UDim2.new(1, 0, 1, 0)
+bgImage.Position = UDim2.new(0, 0, 0, 0)
+bgImage.Image = BACKGROUND_IMAGE_ID
+bgImage.ScaleType = Enum.ScaleType.Crop
+bgImage.BackgroundTransparency = 1
+bgImage.ZIndex = 1
+bgImage.Parent = mainFrame
+
+-- Hilfsfunktion für Fly-Buttons
+local function createButton(text, pos, size)
+    local btn = Instance.new("TextButton")
     btn.Text = text
-    btn.TextColor3 = color
-    btn.TextSize = 16
-    btn.Font = Enum.Font.GothamBold
-    btn.AutoButtonColor = true
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.Position = pos
+    btn.Size = size
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 13
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextStrokeTransparency = 0
+    btn.BackgroundTransparency = 0.5
+    btn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    btn.BorderSizePixel = 1
+    btn.BorderColor3 = Color3.fromRGB(150, 0, 0)
+    btn.ZIndex = 2
+    btn.Parent = mainFrame
     return btn
 end
 
--- Buttons erstellen
-local btnSteal = createButton("Steal", "⚔️ Insta Steal", UDim2.new(0.075, 0, 0.25, 0), Color3.fromRGB(80, 170, 255))
-local btnKick = createButton("Kick", "🚫 Kick Zone", UDim2.new(0.075, 0, 0.46, 0), Color3.fromRGB(255, 80, 80))
-local btnSemiTP = createButton("SemiTP", "📍 SEMI TP", UDim2.new(0.075, 0, 0.67, 0), Color3.fromRGB(200, 80, 255))
+-- BUTTON LAYOUT
+local btnX = createButton("X", UDim2.new(0, 0, 0, 0), UDim2.new(0, w, 0, h))
+btnX.TextColor3 = Color3.fromRGB(255, 50, 50)
+local btnMinus = createButton("-", UDim2.new(0, w, 0, 0), UDim2.new(0, w, 0, h))
 
--- Events
-btnSteal.MouseButton1Click:Connect(function()
-    executeScript(btnSteal, "https://api.luarmor.net/files/v4/loaders/76b1779d41784f4cfe496bedfb0f513c.lua", "⚔️ Insta Steal")
+local btnUp = createButton("UP", UDim2.new(0, 0, 0, h), UDim2.new(0, w, 0, h))
+local btnPlus = createButton("+", UDim2.new(0, w, 0, h), UDim2.new(0, w, 0, h))
+local btnTitle = createButton("UCHIA FLY", UDim2.new(0, w * 2, 0, h), UDim2.new(0, w * 2, 0, h))
+
+local btnDown = createButton("DOWN", UDim2.new(0, 0, 0, h * 2), UDim2.new(0, w, 0, h))
+local btnSpeedDisplay = createButton(tostring(flySpeed), UDim2.new(0, w, 0, h * 2), UDim2.new(0, w, 0, h))
+local btnFlyToggle = createButton("FLY", UDim2.new(0, w * 2, 0, h * 2), UDim2.new(0, w * 2, 0, h))
+
+------------------------------------------------------------------
+-- LOGIK & EVENTS
+------------------------------------------------------------------
+
+-- Get Key Button Event
+btnGetKey.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(TIKTOK_LINK)
+        btnGetKey.Text = "Copied Link!"
+        task.wait(1.5)
+        btnGetKey.Text = "Get Key"
+    else
+        btnGetKey.Text = "Link copied!"
+    end
 end)
 
-btnKick.MouseButton1Click:Connect(function()
-    executeScript(btnKick, "https://rawscripts.net/raw/Universal-Script-noks-anti-scam-ahh-daddy-chill-94360", "🚫 Kick Zone")
+-- Unlock Button Event (Sichere Überprüfung)
+btnUnlock.MouseButton1Click:Connect(function()
+    -- Entfernt unnötige Leerzeichen und wandelt in Großbuchstaben um
+    local enteredText = string.gsub(keyTextBox.Text, "^%s*(.-)%s*$", "%1")
+    enteredText = string.upper(enteredText)
+    
+    if enteredText == string.upper(CORRECT_KEY) then
+        keyFrame:Destroy() -- Schließt das Key GUI
+        mainFrame.Visible = true -- Öffnet das Fly GUI
+    else
+        btnUnlock.Text = "Wrong Key!"
+        btnUnlock.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
+        task.wait(1.5)
+        btnUnlock.Text = "Unlock"
+        btnUnlock.BackgroundColor3 = Color3.fromRGB(30, 80, 30)
+    end
 end)
 
-btnSemiTP.MouseButton1Click:Connect(function()
-    executeScript(btnSemiTP, "https://api.luarmor.net/files/v4/loaders/9f36032d5d93c469e6bdc062f6853fa0.lua", "📍 SEMI TP")
+-- Fly Steuerung Logik
+btnPlus.MouseButton1Click:Connect(function()
+    flySpeed = math.min(flySpeed + 5, maxSpeed)
+    btnSpeedDisplay.Text = tostring(flySpeed)
 end)
 
--- Close Button
-local close = Instance.new("TextButton", main)
-close.Size = UDim2.new(0, 30, 0, 30)
-close.Position = UDim2.new(0.88, 0, 0.03, 0)
-close.BackgroundTransparency = 1
-close.Text = "✕"
-close.TextColor3 = Color3.new(1, 0, 0)
-close.TextSize = 20
-close.MouseButton1Click:Connect(function() sg:Destroy() end)
+btnMinus.MouseButton1Click:Connect(function()
+    flySpeed = math.max(flySpeed - 5, minSpeed)
+    btnSpeedDisplay.Text = tostring(flySpeed)
+end)
+
+btnX.MouseButton1Click:Connect(function()
+    flying = false
+    screenGui:Destroy()
+end)
+
+btnUp.MouseButton1Down:Connect(function() moveUp = true end)
+btnUp.MouseButton1Up:Connect(function() moveUp = false end)
+btnDown.MouseButton1Down:Connect(function() moveDown = true end)
+btnDown.MouseButton1Up:Connect(function() moveDown = false end)
+
+-- Flight Physics Logic
+local bodyVelocity, bodyGyro
+
+btnFlyToggle.MouseButton1Click:Connect(function()
+    flying = not flying
+    local char = LocalPlayer.Character
+    if not char then return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    
+    if flying then
+        btnFlyToggle.TextColor3 = Color3.fromRGB(0, 255, 100)
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+        bodyVelocity.Velocity = Vector3.zero
+        bodyVelocity.Parent = root
+        bodyGyro = Instance.new("BodyGyro")
+        bodyGyro.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
+        bodyGyro.P = 9000
+        bodyGyro.CFrame = root.CFrame
+        bodyGyro.Parent = root
+    else
+        btnFlyToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        if bodyVelocity then bodyVelocity:Destroy() end
+        if bodyGyro then bodyGyro:Destroy() end
+    end
+end)
+
+-- 3D Camera Movement
+RunService.RenderStepped:Connect(function()
+    if flying and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local char = LocalPlayer.Character
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local cam = workspace.CurrentCamera
+        
+        if hum and bodyVelocity and bodyGyro then
+            local moveDir = hum.MoveDirection
+            local flyVector = Vector3.zero
+            
+            if moveDir.Magnitude > 0 then
+                local camLookHorizontal = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
+                if camLookHorizontal.Magnitude > 0 then camLookHorizontal = camLookHorizontal.Unit end
+                local camYawCFrame = CFrame.lookAt(Vector3.zero, camLookHorizontal)
+                local localMove = camYawCFrame:VectorToObjectSpace(moveDir)
+                flyVector = (cam.CFrame.RightVector * localMove.X) + (cam.CFrame.LookVector * -localMove.Z)
+            end
+            
+            local extraVertical = (moveUp and 1 or 0) - (moveDown and 1 or 0)
+            bodyVelocity.Velocity = (flyVector + Vector3.new(0, extraVertical, 0)) * (flySpeed * 2)
+            bodyGyro.CFrame = cam.CFrame
+        end
+    end
+end)
