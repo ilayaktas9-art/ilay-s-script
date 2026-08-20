@@ -10,6 +10,7 @@ local pointParts = {nil, nil, nil, nil}
 local wallFolder = nil
 local isActive = false
 local isLocked = false
+local isMinimized = false
 
 -- UI Setup
 local sgui = Instance.new("ScreenGui", CoreGui)
@@ -20,12 +21,12 @@ frame.Size = UDim2.new(0, 170, 0, 250)
 frame.Position = UDim2.new(0.02, 0, 0.2, 0)
 frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+frame.ClipsDescendants = true -- Wichtig damit beim Minimieren nichts übersteht
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 local stroke = Instance.new("UIStroke", frame)
 stroke.Color = Color3.fromRGB(200, 0, 0); stroke.Thickness = 2
-
-frame.Active = true; frame.Draggable = true
-frame.ClipsDescendants = true
 
 -- Header
 local header = Instance.new("Frame", frame)
@@ -33,29 +34,47 @@ header.Size = UDim2.new(1, 0, 0, 30)
 header.BackgroundTransparency = 1
 
 local title = Instance.new("TextLabel", header)
-title.Size = UDim2.new(1, -55, 1, 0)
+title.Size = UDim2.new(1, -80, 1, 0) -- Platz für 3 Buttons
 title.Position = UDim2.new(0, 6, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "SHARINGAN PROTECTS YOU" 
+title.Text = "SHARINGAN" 
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Font = Enum.Font.GothamBold
 title.TextScaled = true 
 title.TextXAlignment = Enum.TextXAlignment.Left
 
+-- Buttons im Header
 local lockBtn = Instance.new("TextButton", header)
-lockBtn.Size = UDim2.new(0, 22, 0, 22); lockBtn.Position = UDim2.new(1, -50, 0, 4)
+lockBtn.Size = UDim2.new(0, 20, 0, 20); lockBtn.Position = UDim2.new(1, -75, 0, 5)
 lockBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40); lockBtn.Text = "🔓"
 Instance.new("UICorner", lockBtn).CornerRadius = UDim.new(0, 4)
 
+local minBtn = Instance.new("TextButton", header)
+minBtn.Size = UDim2.new(0, 20, 0, 20); minBtn.Position = UDim2.new(1, -50, 0, 5)
+minBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40); minBtn.Text = "-"
+Instance.new("UICorner", minBtn).CornerRadius = UDim.new(0, 4)
+
 local closeBtn = Instance.new("TextButton", header)
-closeBtn.Size = UDim2.new(0, 22, 0, 22); closeBtn.Position = UDim2.new(1, -25, 0, 4)
+closeBtn.Size = UDim2.new(0, 20, 0, 20); closeBtn.Position = UDim2.new(1, -25, 0, 5)
 closeBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0); closeBtn.Text = "X"
 closeBtn.TextColor3 = Color3.new(1,1,1); Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 4)
 
+-- Logik Header-Buttons
 lockBtn.MouseButton1Click:Connect(function()
     isLocked = not isLocked
     frame.Draggable = not isLocked
     lockBtn.Text = isLocked and "🔒" or "🔓"
+end)
+
+minBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        frame.Size = UDim2.new(0, 170, 0, 30)
+        minBtn.Text = "+"
+    else
+        frame.Size = UDim2.new(0, 170, 0, 250)
+        minBtn.Text = "-"
+    end
 end)
 
 closeBtn.MouseButton1Click:Connect(function()
@@ -116,11 +135,10 @@ toggle.MouseButton1Click:Connect(function()
     toggle.BackgroundColor3 = isActive and Color3.fromRGB(0, 120, 0) or Color3.fromRGB(150, 0, 0)
 end)
 
--- Main Loop (100% Instant Precision Check)
+-- Main Loop
 task.spawn(function()
-    while task.wait() do -- Sofortige Abfrage in jedem Frame
+    while task.wait() do
         if isActive and corners[1] and corners[2] and corners[3] and corners[4] then
-            -- Zone mit leichtem Puffer für instant Nachweis an der Wand
             local padding = 1.5
             local minX = math.min(corners[1].X, corners[2].X, corners[3].X, corners[4].X) - padding
             local maxX = math.max(corners[1].X, corners[2].X, corners[3].X, corners[4].X) + padding
@@ -138,32 +156,20 @@ task.spawn(function()
                     w.Size = size; w.Position = pos
                 end
                 local h, t = 12, 0.4
-                local realMinX = minX + padding
-                local realMaxX = maxX - padding
-                local realMinZ = minZ + padding
-                local realMaxZ = maxZ - padding
-                
+                local realMinX, realMaxX = minX + padding, maxX - padding
+                local realMinZ, realMaxZ = minZ + padding, maxZ - padding
                 createW(Vector3.new((realMinX + realMaxX)/2, avgY + 6, realMinZ), Vector3.new(realMaxX-realMinX, h, t))
                 createW(Vector3.new((realMinX + realMaxX)/2, avgY + 6, realMaxZ), Vector3.new(realMaxX-realMinX, h, t))
                 createW(Vector3.new(realMinX, avgY + 6, (realMinZ + realMaxZ)/2), Vector3.new(t, h, realMaxZ-realMinZ))
                 createW(Vector3.new(realMaxX, avgY + 6, (realMinZ + realMaxZ)/2), Vector3.new(t, h, realMaxZ-realMinZ))
             end
 
-            -- High-Precision Target Check
             for _, player in pairs(Players:GetPlayers()) do
                 if player ~= LocalPlayer and player.Character then
                     local hrp = player.Character:FindFirstChild("HumanoidRootPart")
-                    local head = player.Character:FindFirstChild("Head")
-                    
-                    local targets = {}
-                    if hrp then table.insert(targets, hrp.Position) end
-                    if head then table.insert(targets, head.Position) end
-
-                    for _, pos in pairs(targets) do
-                        if pos.X >= minX and pos.X <= maxX and pos.Z >= minZ and pos.Z <= maxZ then
-                            LocalPlayer:Kick("[SHARINGAN] Enemy touched boundary!")
-                            break
-                        end
+                    if hrp and hrp.Position.X >= minX and hrp.Position.X <= maxX and hrp.Position.Z >= minZ and hrp.Position.Z <= maxZ then
+                        LocalPlayer:Kick("[SHARINGAN] Enemy touched boundary!")
+                        break
                     end
                 end
             end
