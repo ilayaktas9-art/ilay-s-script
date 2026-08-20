@@ -1,0 +1,302 @@
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+------------------------------------------------------------------
+-- EINSTELLUNGEN
+------------------------------------------------------------------
+local BACKGROUND_IMAGE_ID = "rbxassetid://1234567890" -- Setze hier deine Bild-ID ein
+local CORRECT_KEY = "THE_UCHIA_CALN"
+local TIKTOK_LINK = "https://www.tiktok.com/@ilay.aktas?_r=1&_t=ZG-9927y7wTqzo"
+
+-- Clean up alter Instanzen
+if CoreGui:FindFirstChild("DeltaTeleportGui2") then
+    CoreGui.DeltaTeleportGui2:Destroy()
+end
+if workspace:FindFirstChild("DeltaMarker_1") then
+    workspace.DeltaMarker_1:Destroy()
+end
+if workspace:FindFirstChild("DeltaMarker_2") then
+    workspace.DeltaMarker_2:Destroy()
+end
+
+-- ScreenGui Erstellung
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DeltaTeleportGui2"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = CoreGui
+
+-- Drag-System NUR für den Hauptkasten
+local function makeDraggable(guiElement)
+    local dragging, dragInput, dragStart, startPos
+
+    guiElement.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = guiElement.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    guiElement.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            guiElement.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+------------------------------------------------------------------
+-- 1. KEY SYSTEM GUI
+------------------------------------------------------------------
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.new(0, 240, 0, 140)
+keyFrame.Position = UDim2.new(0.5, -120, 0.4, -70)
+keyFrame.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
+keyFrame.BorderSizePixel = 2
+keyFrame.BorderColor3 = Color3.fromRGB(255, 0, 0)
+keyFrame.Active = true
+keyFrame.Parent = screenGui
+
+makeDraggable(keyFrame)
+
+local keyTitle = Instance.new("TextLabel")
+keyTitle.Size = UDim2.new(1, 0, 0, 30)
+keyTitle.BackgroundTransparency = 1
+keyTitle.Text = "UCHIA KEY SYSTEM"
+keyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTitle.Font = Enum.Font.SourceSansBold
+keyTitle.TextSize = 15
+keyTitle.Parent = keyFrame
+
+local keyTextBox = Instance.new("TextBox")
+keyTextBox.Size = UDim2.new(0.85, 0, 0, 30)
+keyTextBox.Position = UDim2.new(0.075, 0, 0.28, 0)
+keyTextBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+keyTextBox.BorderSizePixel = 1
+keyTextBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
+keyTextBox.PlaceholderText = "Enter Key Here..."
+keyTextBox.Text = ""
+keyTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTextBox.Font = Enum.Font.SourceSans
+keyTextBox.TextSize = 13
+keyTextBox.Parent = keyFrame
+
+local btnGetKey = Instance.new("TextButton")
+btnGetKey.Size = UDim2.new(0.4, 0, 0, 30)
+btnGetKey.Position = UDim2.new(0.075, 0, 0.65, 0)
+btnGetKey.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+btnGetKey.BorderColor3 = Color3.fromRGB(0, 0, 0)
+btnGetKey.Text = "Get Key"
+btnGetKey.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnGetKey.Font = Enum.Font.SourceSansBold
+btnGetKey.TextSize = 13
+btnGetKey.Parent = keyFrame
+
+local btnUnlock = Instance.new("TextButton")
+btnUnlock.Size = UDim2.new(0.4, 0, 0, 30)
+btnUnlock.Position = UDim2.new(0.525, 0, 0.65, 0)
+btnUnlock.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+btnUnlock.BorderColor3 = Color3.fromRGB(0, 0, 0)
+btnUnlock.Text = "Unlock"
+btnUnlock.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnUnlock.Font = Enum.Font.SourceSansBold
+btnUnlock.TextSize = 13
+btnUnlock.Parent = keyFrame
+
+------------------------------------------------------------------
+-- 2. HAUPT TELEPORT GUI (Roter Kasten mit "UCHIA TELEPORTER")
+------------------------------------------------------------------
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 310, 0, 135) -- Etwas höher für den Titel
+frame.Position = UDim2.new(0.5, -155, 0.8, 0)
+frame.BackgroundColor3 = Color3.fromRGB(150, 0, 0) -- Roter Kasten
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.fromRGB(255, 50, 50)
+frame.Active = true
+frame.Visible = false
+frame.Parent = screenGui
+
+makeDraggable(frame)
+
+-- HINTERGRUNDBILD
+local bgImage = Instance.new("ImageLabel")
+bgImage.Size = UDim2.new(1, 0, 1, 0)
+bgImage.Position = UDim2.new(0, 0, 0, 0)
+bgImage.Image = BACKGROUND_IMAGE_ID
+bgImage.ScaleType = Enum.ScaleType.Crop
+bgImage.BackgroundTransparency = 0.5
+bgImage.ZIndex = 1
+bgImage.Parent = frame
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 8)
+uiCorner.Parent = frame
+
+-- KASTEN-TITEL
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 25)
+titleLabel.Position = UDim2.new(0, 0, 0, 2)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "UCHIA TELEPORTER"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 16
+titleLabel.ZIndex = 2
+titleLabel.Parent = frame
+
+-- Hilfsfunktion für Schwarze Buttons
+local function createButton(text, pos, parent)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 135, 0, 40)
+    btn.Position = pos
+    btn.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Schwarze Buttons
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BorderSizePixel = 1
+    btn.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 14
+    btn.ZIndex = 2
+    btn.Parent = parent
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = btn
+
+    return btn
+end
+
+-- Teleport Buttons im Kasten
+local saveBtn1 = createButton("Save Checkpoint 1", UDim2.new(0, 10, 0, 30), frame)
+local tpBtn1   = createButton("Teleport to 1",    UDim2.new(0, 165, 0, 30), frame)
+
+local saveBtn2 = createButton("Save Checkpoint 2", UDim2.new(0, 10, 0, 80), frame)
+local tpBtn2   = createButton("Teleport to 2",    UDim2.new(0, 165, 0, 80), frame)
+
+------------------------------------------------------------------
+-- LOGIK & EVENTS
+------------------------------------------------------------------
+
+-- Link kopieren
+btnGetKey.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(TIKTOK_LINK)
+        btnGetKey.Text = "Copied!"
+        task.wait(1.5)
+        btnGetKey.Text = "Get Key"
+    else
+        btnGetKey.Text = "Copied!"
+    end
+end)
+
+-- Key überprüfen
+btnUnlock.MouseButton1Click:Connect(function()
+    local enteredText = string.gsub(keyTextBox.Text, "^%s*(.-)%s*$", "%1")
+    enteredText = string.upper(enteredText)
+
+    if enteredText == string.upper(CORRECT_KEY) then
+        keyFrame:Destroy()
+        frame.Visible = true
+    else
+        btnUnlock.Text = "Wrong Key!"
+        btnUnlock.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+        task.wait(1.5)
+        btnUnlock.Text = "Unlock"
+        btnUnlock.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    end
+end)
+
+-- Checkpoint & Teleport Logik (Punkte: 1 = Rot, 2 = Schwarz)
+local savedCFrame1 = nil
+local savedCFrame2 = nil
+local markerPart1 = nil
+local markerPart2 = nil
+
+local function updateMarker(id, cf, color)
+    local markerName = "DeltaMarker_" .. id
+    local currentMarker = (id == 1) and markerPart1 or markerPart2
+
+    if not currentMarker or not currentMarker.Parent then
+        currentMarker = Instance.new("Part")
+        currentMarker.Name = markerName
+        currentMarker.Shape = Enum.PartType.Cylinder
+        currentMarker.Size = Vector3.new(0.3, 4, 4)
+        currentMarker.Color = color
+        currentMarker.Material = Enum.Material.Neon
+        currentMarker.Transparency = 0.2
+        currentMarker.Anchored = true
+        currentMarker.CanCollide = false
+        currentMarker.Parent = workspace
+
+        if id == 1 then markerPart1 = currentMarker else markerPart2 = currentMarker end
+    end
+
+    currentMarker.CFrame = CFrame.new(cf.Position - Vector3.new(0, 2.8, 0)) * CFrame.Angles(0, 0, math.rad(90))
+end
+
+-- Punkt 1 (ROT)
+saveBtn1.MouseButton1Click:Connect(function()
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        savedCFrame1 = hrp.CFrame
+        updateMarker(1, savedCFrame1, Color3.fromRGB(255, 0, 0))
+        
+        saveBtn1.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        task.wait(0.15)
+        saveBtn1.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    end
+end)
+
+tpBtn1.MouseButton1Click:Connect(function()
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if savedCFrame1 and hrp then
+        hrp.CFrame = savedCFrame1
+    else
+        tpBtn1.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        task.wait(0.15)
+        tpBtn1.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    end
+end)
+
+-- Punkt 2 (SCHWARZ)
+saveBtn2.MouseButton1Click:Connect(function()
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        savedCFrame2 = hrp.CFrame
+        updateMarker(2, savedCFrame2, Color3.fromRGB(15, 15, 15))
+        
+        saveBtn2.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        task.wait(0.15)
+        saveBtn2.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    end
+end)
+
+tpBtn2.MouseButton1Click:Connect(function()
+    local char = player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if savedCFrame2 and hrp then
+        hrp.CFrame = savedCFrame2
+    else
+        tpBtn2.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        task.wait(0.15)
+        tpBtn2.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    end
+end)
