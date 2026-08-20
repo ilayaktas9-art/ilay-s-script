@@ -6,10 +6,6 @@ local LocalPlayer = Players.LocalPlayer
 -- SETZE HIER DEINE BILD-ID EIN:
 local BACKGROUND_IMAGE_ID = "rbxassetid://1234567890" 
 
--- KEY EINSTELLUNG
-local CORRECT_KEY = "THE_UCHIA_CALN"
-local TIKTOK_LINK = "https://www.tiktok.com/@ilay.aktas?_r=1&_t=ZG-9927y7wTqzo"
-
 -- Fly Settings
 local flying = false
 local flySpeed = 50
@@ -58,69 +54,7 @@ local function makeDraggable(guiElement, dragHandle)
 end
 
 ------------------------------------------------------------------
--- 1. KEY SYSTEM GUI
-------------------------------------------------------------------
-local keyFrame = Instance.new("Frame")
-keyFrame.Size = UDim2.new(0, 220, 0, 140)
-keyFrame.Position = UDim2.new(0.5, -110, 0.4, -70)
-keyFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-keyFrame.BorderSizePixel = 2
-keyFrame.BorderColor3 = Color3.fromRGB(150, 0, 0)
-keyFrame.Active = true
-keyFrame.Parent = screenGui
-
-makeDraggable(keyFrame)
-
--- Titel
-local keyTitle = Instance.new("TextLabel")
-keyTitle.Size = UDim2.new(1, 0, 0, 30)
-keyTitle.BackgroundTransparency = 1
-keyTitle.Text = "UCHIA KEY SYSTEM"
-keyTitle.TextColor3 = Color3.fromRGB(255, 50, 50)
-keyTitle.Font = Enum.Font.SourceSansBold
-keyTitle.TextSize = 14
-keyTitle.Parent = keyFrame
-
--- Text-Eingabefeld
-local keyTextBox = Instance.new("TextBox")
-keyTextBox.Size = UDim2.new(0.85, 0, 0, 30)
-keyTextBox.Position = UDim2.new(0.075, 0, 0.28, 0)
-keyTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-keyTextBox.BorderSizePixel = 1
-keyTextBox.BorderColor3 = Color3.fromRGB(100, 100, 100)
-keyTextBox.PlaceholderText = "Enter Key Here..."
-keyTextBox.Text = ""
-keyTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyTextBox.Font = Enum.Font.SourceSans
-keyTextBox.TextSize = 12
-keyTextBox.Parent = keyFrame
-
--- Get Key Button (Link kopieren)
-local btnGetKey = Instance.new("TextButton")
-btnGetKey.Size = UDim2.new(0.4, 0, 0, 30)
-btnGetKey.Position = UDim2.new(0.075, 0, 0.65, 0)
-btnGetKey.BackgroundColor3 = Color3.fromRGB(30, 30, 80)
-btnGetKey.BorderColor3 = Color3.fromRGB(0, 100, 255)
-btnGetKey.Text = "Get Key"
-btnGetKey.TextColor3 = Color3.fromRGB(255, 255, 255)
-btnGetKey.Font = Enum.Font.SourceSansBold
-btnGetKey.TextSize = 12
-btnGetKey.Parent = keyFrame
-
--- Unlock Button
-local btnUnlock = Instance.new("TextButton")
-btnUnlock.Size = UDim2.new(0.4, 0, 0, 30)
-btnUnlock.Position = UDim2.new(0.525, 0, 0.65, 0)
-btnUnlock.BackgroundColor3 = Color3.fromRGB(30, 80, 30)
-btnUnlock.BorderColor3 = Color3.fromRGB(0, 255, 100)
-btnUnlock.Text = "Unlock"
-btnUnlock.TextColor3 = Color3.fromRGB(255, 255, 255)
-btnUnlock.Font = Enum.Font.SourceSansBold
-btnUnlock.TextSize = 12
-btnUnlock.Parent = keyFrame
-
-------------------------------------------------------------------
--- 2. HAUPT FLY GUI (Wird erst nach Unlock sichtbar)
+-- HAUPT FLY GUI (Direkt verfügbar ohne Key-System)
 ------------------------------------------------------------------
 local w = 48 
 local h = 27 
@@ -130,7 +64,7 @@ mainFrame.Size = UDim2.new(0, w * 4, 0, h * 3)
 mainFrame.Position = UDim2.new(0.1, 0, 0.4, 0)
 mainFrame.BackgroundTransparency = 1
 mainFrame.Active = true
-mainFrame.Visible = false -- Standardmäßig unsichtbar
+mainFrame.Visible = true -- Direkt sichtbar!
 mainFrame.Parent = screenGui
 
 makeDraggable(mainFrame)
@@ -180,36 +114,6 @@ local btnFlyToggle = createButton("FLY", UDim2.new(0, w * 2, 0, h * 2), UDim2.ne
 ------------------------------------------------------------------
 -- LOGIK & EVENTS
 ------------------------------------------------------------------
-
--- Get Key Button Event
-btnGetKey.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard(TIKTOK_LINK)
-        btnGetKey.Text = "Copied Link!"
-        task.wait(1.5)
-        btnGetKey.Text = "Get Key"
-    else
-        btnGetKey.Text = "Link copied!"
-    end
-end)
-
--- Unlock Button Event (Sichere Überprüfung)
-btnUnlock.MouseButton1Click:Connect(function()
-    -- Entfernt unnötige Leerzeichen und wandelt in Großbuchstaben um
-    local enteredText = string.gsub(keyTextBox.Text, "^%s*(.-)%s*$", "%1")
-    enteredText = string.upper(enteredText)
-    
-    if enteredText == string.upper(CORRECT_KEY) then
-        keyFrame:Destroy() -- Schließt das Key GUI
-        mainFrame.Visible = true -- Öffnet das Fly GUI
-    else
-        btnUnlock.Text = "Wrong Key!"
-        btnUnlock.BackgroundColor3 = Color3.fromRGB(150, 30, 30)
-        task.wait(1.5)
-        btnUnlock.Text = "Unlock"
-        btnUnlock.BackgroundColor3 = Color3.fromRGB(30, 80, 30)
-    end
-end)
 
 -- Fly Steuerung Logik
 btnPlus.MouseButton1Click:Connect(function()
