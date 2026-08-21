@@ -21,8 +21,8 @@ for _, username in ipairs(allowedUsernames) do
 end
 
 if not whitelistedUserIds[localPlayer.UserId] then
-    warn("Zugriff verweigert: Du stehst nicht auf der Whitelist!")
-    return -- Bricht das Skript ab
+    localPlayer:Kick("ITS PAID :) discord.gg/z55e3KKUS")
+    return
 end
 
 print("Whitelist-Zugriff gewährt für: " .. localPlayer.Name)
@@ -32,12 +32,10 @@ print("Whitelist-Zugriff gewährt für: " .. localPlayer.Name)
 ----------------------------------------------------
 local CORRECT_KEY = "ilay's_hub"
 
--- ScreenGui erstellen
 local keyScreenGui = Instance.new("ScreenGui")
 keyScreenGui.Name = "IlayKeySystem"
 keyScreenGui.ResetOnSpawn = false
 
--- Schutz vor Unpack/Exploit-Detection (CoreGui nutzen falls möglich)
 if gethui then
     keyScreenGui.Parent = gethui()
 elseif syn and syn.protect_gui then
@@ -47,7 +45,6 @@ else
     keyScreenGui.Parent = CoreGui
 end
 
--- Hauptfenster
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 320, 0, 180)
 mainFrame.Position = UDim2.new(0.5, -160, 0.5, -90)
@@ -61,7 +58,6 @@ local uiCorner = Instance.new("UICorner")
 uiCorner.CornerRadius = UDim.new(0, 8)
 uiCorner.Parent = mainFrame
 
--- Titel
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0, 40)
 titleLabel.BackgroundTransparency = 1
@@ -71,7 +67,6 @@ titleLabel.TextSize = 18
 titleLabel.Font = Enum.Font.SourceSansBold
 titleLabel.Parent = mainFrame
 
--- Eingabefeld
 local keyTextBox = Instance.new("TextBox")
 keyTextBox.Size = UDim2.new(0.8, 0, 0, 35)
 keyTextBox.Position = UDim2.new(0.1, 0, 0.3, 0)
@@ -88,7 +83,6 @@ local boxCorner = Instance.new("UICorner")
 boxCorner.CornerRadius = UDim.new(0, 6)
 boxCorner.Parent = keyTextBox
 
--- Bestätigen Button
 local submitButton = Instance.new("TextButton")
 submitButton.Size = UDim2.new(0.8, 0, 0, 35)
 submitButton.Position = UDim2.new(0.1, 0, 0.6, 0)
@@ -110,13 +104,32 @@ local function startMainScript()
     keyScreenGui:Destroy()
     print("Key korrekt! Skript startet...")
     
-    -- ===============================================
-    -- HIER DRUNTER KOMMT DEIN GEWOHNTES GUI-SKRIPT:
-    -- ===============================================
-    
+    local hubGui = Instance.new("ScreenGui")
+    hubGui.Name = "IlayHub"
+    hubGui.Parent = gethui and gethui() or CoreGui
+
+    local hubFrame = Instance.new("Frame")
+    hubFrame.Size = UDim2.new(0, 350, 0, 200)
+    hubFrame.Position = UDim2.new(0.5, -175, 0.5, -100)
+    hubFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    hubFrame.Active = true
+    hubFrame.Draggable = true
+    hubFrame.Parent = hubGui
+
+    local hubCorner = Instance.new("UICorner")
+    hubCorner.CornerRadius = UDim.new(0, 8)
+    hubCorner.Parent = hubFrame
+
+    local hubTitle = Instance.new("TextLabel")
+    hubTitle.Size = UDim2.new(1, 0, 0, 40)
+    hubTitle.BackgroundTransparency = 1
+    hubTitle.Text = "Ilay's Hub Loaded!"
+    hubTitle.TextColor3 = Color3.fromRGB(0, 255, 127)
+    hubTitle.TextSize = 20
+    hubTitle.Font = Enum.Font.SourceSansBold
+    hubTitle.Parent = hubFrame
 end
 
--- Button Klick-Logik
 submitButton.MouseButton1Click:Connect(function()
     if keyTextBox.Text == CORRECT_KEY then
         startMainScript()
