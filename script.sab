@@ -1,0 +1,130 @@
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local localPlayer = Players.LocalPlayer
+
+----------------------------------------------------
+-- 1. WHITELIST SYSTEM
+----------------------------------------------------
+local allowedUsernames = {
+    "leuna123458",
+    "Ilaykingo18acc4"
+}
+
+local whitelistedUserIds = {}
+for _, username in ipairs(allowedUsernames) do
+    local success, userId = pcall(function()
+        return Players:GetUserIdFromNameAsync(username)
+    end)
+    if success and userId then
+        whitelistedUserIds[userId] = true
+    end
+end
+
+if not whitelistedUserIds[localPlayer.UserId] then
+    warn("Zugriff verweigert: Du stehst nicht auf der Whitelist!")
+    return -- Bricht das Skript ab
+end
+
+print("Whitelist-Zugriff gewährt für: " .. localPlayer.Name)
+
+----------------------------------------------------
+-- 2. KEY SYSTEM (GUI)
+----------------------------------------------------
+local CORRECT_KEY = "ilay's_hub"
+
+-- ScreenGui erstellen
+local keyScreenGui = Instance.new("ScreenGui")
+keyScreenGui.Name = "IlayKeySystem"
+keyScreenGui.ResetOnSpawn = false
+
+-- Schutz vor Unpack/Exploit-Detection (CoreGui nutzen falls möglich)
+if gethui then
+    keyScreenGui.Parent = gethui()
+elseif syn and syn.protect_gui then
+    syn.protect_gui(keyScreenGui)
+    keyScreenGui.Parent = CoreGui
+else
+    keyScreenGui.Parent = CoreGui
+end
+
+-- Hauptfenster
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 320, 0, 180)
+mainFrame.Position = UDim2.new(0.5, -160, 0.5, -90)
+mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = keyScreenGui
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 8)
+uiCorner.Parent = mainFrame
+
+-- Titel
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Key System"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 18
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.Parent = mainFrame
+
+-- Eingabefeld
+local keyTextBox = Instance.new("TextBox")
+keyTextBox.Size = UDim2.new(0.8, 0, 0, 35)
+keyTextBox.Position = UDim2.new(0.1, 0, 0.3, 0)
+keyTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+keyTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyTextBox.PlaceholderText = "Key eingeben..."
+keyTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+keyTextBox.Text = ""
+keyTextBox.TextSize = 14
+keyTextBox.Font = Enum.Font.SourceSans
+keyTextBox.Parent = mainFrame
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = UDim.new(0, 6)
+boxCorner.Parent = keyTextBox
+
+-- Bestätigen Button
+local submitButton = Instance.new("TextButton")
+submitButton.Size = UDim2.new(0.8, 0, 0, 35)
+submitButton.Position = UDim2.new(0.1, 0, 0.6, 0)
+submitButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+submitButton.Text = "Key Überprüfen"
+submitButton.TextSize = 15
+submitButton.Font = Enum.Font.SourceSansBold
+submitButton.Parent = mainFrame
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 6)
+btnCorner.Parent = submitButton
+
+----------------------------------------------------
+-- 3. HAUPTSKRIPT AUSFÜHRUNG
+----------------------------------------------------
+local function startMainScript()
+    keyScreenGui:Destroy()
+    print("Key korrekt! Skript startet...")
+    
+    -- ===============================================
+    -- HIER DRUNTER KOMMT DEIN GEWOHNTES GUI-SKRIPT:
+    -- ===============================================
+    
+end
+
+-- Button Klick-Logik
+submitButton.MouseButton1Click:Connect(function()
+    if keyTextBox.Text == CORRECT_KEY then
+        startMainScript()
+    else
+        submitButton.Text = "Falscher Key!"
+        submitButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        task.wait(1.5)
+        submitButton.Text = "Key Überprüfen"
+        submitButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+    end
+end)
