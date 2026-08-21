@@ -1,143 +1,140 @@
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
-local localPlayer = Players.LocalPlayer
 
-----------------------------------------------------
--- 1. WHITELIST SYSTEM
-----------------------------------------------------
-local allowedUsernames = {
-    "leuna123458",
-    "Ilaykingo18acc4"
-}
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ItachiHub"
+screenGui.ResetOnSpawn = false
 
-local whitelistedUserIds = {}
-for _, username in ipairs(allowedUsernames) do
-    local success, userId = pcall(function()
-        return Players:GetUserIdFromNameAsync(username)
-    end)
-    if success and userId then
-        whitelistedUserIds[userId] = true
-    end
-end
-
-if not whitelistedUserIds[localPlayer.UserId] then
-    localPlayer:Kick("ITS PAID :) discord.gg/z55e3KKUS")
-    return
-end
-
-print("Whitelist-Zugriff gewährt für: " .. localPlayer.Name)
-
-----------------------------------------------------
--- 2. KEY SYSTEM (GUI)
-----------------------------------------------------
-local CORRECT_KEY = "ilay's_hub"
-
-local keyScreenGui = Instance.new("ScreenGui")
-keyScreenGui.Name = "IlayKeySystem"
-keyScreenGui.ResetOnSpawn = false
-
-if gethui then
-    keyScreenGui.Parent = gethui()
-elseif syn and syn.protect_gui then
-    syn.protect_gui(keyScreenGui)
-    keyScreenGui.Parent = CoreGui
+-- Schutz vor Detection / Parent setzen
+if syn and syn.protect_gui then
+    syn.protect_gui(screenGui)
+    screenGui.Parent = CoreGui
+elseif gethui then
+    screenGui.Parent = gethui()
 else
-    keyScreenGui.Parent = CoreGui
+    screenGui.Parent = CoreGui
 end
 
+-- Main Frame (Schwarz mit rotem Rand)
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 320, 0, 180)
-mainFrame.Position = UDim2.new(0.5, -160, 0.5, -90)
-mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 220, 0, 190)
+mainFrame.Position = UDim2.new(0.5, -110, 0.5, -95)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
-mainFrame.Parent = keyScreenGui
+mainFrame.Parent = screenGui
 
-local uiCorner = Instance.new("UICorner")
-uiCorner.CornerRadius = UDim.new(0, 8)
-uiCorner.Parent = mainFrame
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 8)
+mainCorner.Parent = mainFrame
 
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, 0, 0, 40)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "Key System"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.TextSize = 18
-titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.Parent = mainFrame
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(180, 0, 0)
+mainStroke.Thickness = 2
+mainStroke.Parent = mainFrame
 
-local keyTextBox = Instance.new("TextBox")
-keyTextBox.Size = UDim2.new(0.8, 0, 0, 35)
-keyTextBox.Position = UDim2.new(0.1, 0, 0.3, 0)
-keyTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-keyTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-keyTextBox.PlaceholderText = "Key eingeben..."
-keyTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-keyTextBox.Text = ""
-keyTextBox.TextSize = 14
-keyTextBox.Font = Enum.Font.SourceSans
-keyTextBox.Parent = mainFrame
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -60, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Itachi Hub ( sab )"
+title.TextColor3 = Color3.fromRGB(255, 50, 50)
+title.TextSize = 15
+title.Font = Enum.Font.SourceSansBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = mainFrame
 
-local boxCorner = Instance.new("UICorner")
-boxCorner.CornerRadius = UDim.new(0, 6)
-boxCorner.Parent = keyTextBox
+-- Top Right Buttons (Minimieren & Schließen)
+local minButton = Instance.new("TextButton")
+minButton.Size = UDim2.new(0, 25, 0, 25)
+minButton.Position = UDim2.new(1, -55, 0, 2.5)
+minButton.BackgroundTransparency = 1
+minButton.Text = "-"
+minButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+minButton.TextSize = 20
+minButton.Font = Enum.Font.SourceSansBold
+minButton.Parent = mainFrame
 
-local submitButton = Instance.new("TextButton")
-submitButton.Size = UDim2.new(0.8, 0, 0, 35)
-submitButton.Position = UDim2.new(0.1, 0, 0.6, 0)
-submitButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
-submitButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-submitButton.Text = "Key Überprüfen"
-submitButton.TextSize = 15
-submitButton.Font = Enum.Font.SourceSansBold
-submitButton.Parent = mainFrame
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 25, 0, 25)
+closeButton.Position = UDim2.new(1, -28, 0, 2.5)
+closeButton.BackgroundTransparency = 1
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 50, 50)
+closeButton.TextSize = 16
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.Parent = mainFrame
 
-local btnCorner = Instance.new("UICorner")
-btnCorner.CornerRadius = UDim.new(0, 6)
-btnCorner.Parent = submitButton
+-- Container für Buttons
+local container = Instance.new("Frame")
+container.Name = "Container"
+container.Size = UDim2.new(1, -20, 1, -40)
+container.Position = UDim2.new(0, 10, 0, 35)
+container.BackgroundTransparency = 1
+container.Parent = mainFrame
 
-----------------------------------------------------
--- 3. HAUPTSKRIPT AUSFÜHRUNG
-----------------------------------------------------
-local function startMainScript()
-    keyScreenGui:Destroy()
-    print("Key korrekt! Skript startet...")
-    
-    local hubGui = Instance.new("ScreenGui")
-    hubGui.Name = "IlayHub"
-    hubGui.Parent = gethui and gethui() or CoreGui
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 8)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Parent = container
 
-    local hubFrame = Instance.new("Frame")
-    hubFrame.Size = UDim2.new(0, 350, 0, 200)
-    hubFrame.Position = UDim2.new(0.5, -175, 0.5, -100)
-    hubFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    hubFrame.Active = true
-    hubFrame.Draggable = true
-    hubFrame.Parent = hubGui
+-- Funktion zum Erstellen der Red/Black Buttons
+local function createButton(text, order, onClickFunction)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 35)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 10, 10)
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 13
+    btn.Font = Enum.Font.SourceSansBold
+    btn.LayoutOrder = order
+    btn.Parent = container
 
-    local hubCorner = Instance.new("UICorner")
-    hubCorner.CornerRadius = UDim.new(0, 8)
-    hubCorner.Parent = hubFrame
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = btn
 
-    local hubTitle = Instance.new("TextLabel")
-    hubTitle.Size = UDim2.new(1, 0, 0, 40)
-    hubTitle.BackgroundTransparency = 1
-    hubTitle.Text = "Ilay's Hub Loaded!"
-    hubTitle.TextColor3 = Color3.fromRGB(0, 255, 127)
-    hubTitle.TextSize = 20
-    hubTitle.Font = Enum.Font.SourceSansBold
-    hubTitle.Parent = hubFrame
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(150, 0, 0)
+    stroke.Thickness = 1
+    stroke.Parent = btn
+
+    btn.MouseButton1Click:Connect(onClickFunction)
 end
 
-submitButton.MouseButton1Click:Connect(function()
-    if keyTextBox.Text == CORRECT_KEY then
-        startMainScript()
+-- 1. Knopf: Semi TP (führt script.tp aus)
+createButton("Semi TP", 1, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.tp?v="..math.random()))()
+end)
+
+-- 2. Knopf: Kick Zone (Name bleibt gleich)
+createButton("Kick Zone", 2, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.kickzone?v="..math.random()))()
+end)
+
+-- 3. Knopf: esp,leave,rejoin (führt script.leave aus)
+createButton("esp,leave,rejoin", 3, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.leave?v="..math.random()))()
+end)
+
+-- Minimieren Logik
+local isMinimized = false
+minButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        container.Visible = false
+        mainFrame:TweenSize(UDim2.new(0, 220, 0, 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
     else
-        submitButton.Text = "Falscher Key!"
-        submitButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-        task.wait(1.5)
-        submitButton.Text = "Key Überprüfen"
-        submitButton.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+        mainFrame:TweenSize(UDim2.new(0, 220, 0, 190), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+        task.wait(0.15)
+        container.Visible = true
     end
+end)
+
+-- Schließen Logik
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
 end)
