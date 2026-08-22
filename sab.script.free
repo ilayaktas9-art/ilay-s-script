@@ -1,0 +1,147 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local CoreGui = game:GetService("CoreGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ItachiHub"
+screenGui.ResetOnSpawn = false
+
+-- Schutz vor Detection / Parent setzen
+if syn and syn.protect_gui then
+    syn.protect_gui(screenGui)
+    screenGui.Parent = CoreGui
+elseif gethui then
+    screenGui.Parent = gethui()
+else
+    screenGui.Parent = CoreGui
+end
+
+-- Main Frame (Schwarz mit rotem Rand)
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 220, 0, 230) -- Platz für 4 Buttons
+mainFrame.Position = UDim2.new(0.5, -110, 0.5, -115)
+mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 8)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(180, 0, 0)
+mainStroke.Thickness = 2
+mainStroke.Parent = mainFrame
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -60, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Itachi Hub ( sab )"
+title.TextColor3 = Color3.fromRGB(255, 50, 50)
+title.TextSize = 15
+title.Font = Enum.Font.SourceSansBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = mainFrame
+
+-- Top Right Buttons (Minimieren & Schließen)
+local minButton = Instance.new("TextButton")
+minButton.Size = UDim2.new(0, 25, 0, 25)
+minButton.Position = UDim2.new(1, -55, 0, 2.5)
+minButton.BackgroundTransparency = 1
+minButton.Text = "-"
+minButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+minButton.TextSize = 20
+minButton.Font = Enum.Font.SourceSansBold
+minButton.Parent = mainFrame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 25, 0, 25)
+closeButton.Position = UDim2.new(1, -28, 0, 2.5)
+closeButton.BackgroundTransparency = 1
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 50, 50)
+closeButton.TextSize = 16
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.Parent = mainFrame
+
+-- Container für Buttons
+local container = Instance.new("Frame")
+container.Name = "Container"
+container.Size = UDim2.new(1, -20, 1, -40)
+container.Position = UDim2.new(0, 10, 0, 35)
+container.BackgroundTransparency = 1
+container.Parent = mainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Padding = UDim.new(0, 8)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Parent = container
+
+-- Funktion zum Erstellen der Red/Black Buttons
+local function createButton(text, order, onClickFunction)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 35)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 10, 10)
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 13
+    btn.Font = Enum.Font.SourceSansBold
+    btn.LayoutOrder = order
+    btn.Parent = container
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = btn
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(150, 0, 0)
+    stroke.Thickness = 1
+    stroke.Parent = btn
+
+    btn.MouseButton1Click:Connect(onClickFunction)
+end
+
+-- 1. Knopf: Sharingan Script direkt laden
+createButton("Sharingan", 1, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/sharingan?v="..math.random()))()
+end)
+
+-- 2. Knopf: Semi TP
+createButton("Semi TP", 2, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.tp?v="..math.random()))()
+end)
+
+-- 3. Knopf: Kick Zone
+createButton("Kick Zone", 3, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.kickzone?v="..math.random()))()
+end)
+
+-- 4. Knopf: esp,leave,rejoin
+createButton("esp,leave,rejoin", 4, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.leave?v="..math.random()))()
+end)
+
+-- Minimieren Logik
+local isMinimized = false
+minButton.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        container.Visible = false
+        mainFrame:TweenSize(UDim2.new(0, 220, 0, 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+    else
+        mainFrame:TweenSize(UDim2.new(0, 220, 0, 230), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+        task.wait(0.15)
+        container.Visible = true
+    end
+end)
+
+-- Schließen Logik
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
