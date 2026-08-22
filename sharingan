@@ -1,0 +1,81 @@
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local camera = Workspace.CurrentCamera
+
+local freecamActive = false
+local ghostPart = nil
+local renderConn = nil
+
+-- GUI
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "FreecamGui"
+
+local toggleBtn = Instance.new("TextButton", screenGui)
+toggleBtn.Size = UDim2.new(0, 60, 0, 60)
+toggleBtn.Position = UDim2.new(0.5, -30, 0.05, 0)
+toggleBtn.Text = "👁️"
+toggleBtn.TextSize = 30
+toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 12)
+
+toggleBtn.MouseButton1Click:Connect(function()
+    freecamActive = not freecamActive
+    
+    local char = player.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    local hum = char:FindFirstChild("Humanoid")
+    
+    if freecamActive then
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        
+        char.HumanoidRootPart.Anchored = true
+        
+        -- Unsichtbares Geist-Part
+        ghostPart = Instance.new("Part")
+        ghostPart.Name = "GhostCamPart"
+        ghostPart.Size = Vector3.new(1, 1, 1)
+        ghostPart.CFrame = camera.CFrame
+        ghostPart.Transparency = 1
+        ghostPart.CanCollide = false
+        ghostPart.Anchored = true
+        ghostPart.Parent = Workspace
+        
+        camera.CameraSubject = ghostPart
+        
+        -- Bewegungs-Logik (Nur Vorwärts)
+        renderConn = RunService.RenderStepped:Connect(function(dt)
+            if ghostPart and hum then
+                local moveDir = hum.MoveDirection
+                
+                -- Sobald der Joystick irgendwohin gedrückt wird:
+                if moveDir.Magnitude > 0 then
+                    local camCF = camera.CFrame
+                    local speed = 100
+                    
+                    -- Nimmt strikt nur den LookVector (Blickrichtung nach vorne/oben/unten)
+                    local wishDir = camCF.LookVector
+                    
+                    ghostPart.CFrame = ghostPart.CFrame + (wishDir * speed * dt)
+                end
+            end
+        end)
+    else
+        toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        
+        if renderConn then renderConn:Disconnect() end
+        
+        char.HumanoidRootPart.Anchored = false
+        if hum then
+            camera.CameraSubject = hum
+        end
+        
+        if ghostPart then
+            ghostPart:Destroy()
+            ghostPart = nil
+        end
+    end
+end)
