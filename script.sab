@@ -4,7 +4,7 @@ local LocalPlayer = Players.LocalPlayer
 -- Whitelist-Prüfung vor dem Laden des Guis
 local Whitelist = {
     ["Ilaykingo18"] = true,
-    ["lanceloat2"] = true
+    ["Ilaykingo18acc4"] = true
 }
 
 if not Whitelist[LocalPlayer.Name] then
