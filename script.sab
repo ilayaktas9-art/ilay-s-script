@@ -1,4 +1,17 @@
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Whitelist-Prüfung vor dem Laden des Guis
+local Whitelist = {
+    ["Ilaykingo18"] = true,
+    ["Ilaykingo18acc4"] = true
+}
+
+if not Whitelist[LocalPlayer.Name] then
+    LocalPlayer:Kick("buy script discord.gg/z55e3KKUS")
+    return
+end
+
 local CoreGui = game:GetService("CoreGui")
 
 local screenGui = Instance.new("ScreenGui")
@@ -18,8 +31,8 @@ end
 -- Main Frame (Schwarz mit rotem Rand)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 220, 0, 190)
-mainFrame.Position = UDim2.new(0.5, -110, 0.5, -95)
+mainFrame.Size = UDim2.new(0, 220, 0, 230) -- Platz für 4 Buttons
+mainFrame.Position = UDim2.new(0.5, -110, 0.5, -115)
 mainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
@@ -105,18 +118,23 @@ local function createButton(text, order, onClickFunction)
     btn.MouseButton1Click:Connect(onClickFunction)
 end
 
--- 1. Knopf: Semi TP (führt script.tp aus)
-createButton("Semi TP", 1, function()
+-- 1. Knopf: Sharingan Script direkt laden
+createButton("Sharingan", 1, function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/sharingan?v="..math.random()))()
+end)
+
+-- 2. Knopf: Semi TP
+createButton("Semi TP", 2, function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.tp?v="..math.random()))()
 end)
 
--- 2. Knopf: Kick Zone (Name bleibt gleich)
-createButton("Kick Zone", 2, function()
+-- 3. Knopf: Kick Zone
+createButton("Kick Zone", 3, function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.kickzone?v="..math.random()))()
 end)
 
--- 3. Knopf: esp,leave,rejoin (führt script.leave aus)
-createButton("esp,leave,rejoin", 3, function()
+-- 4. Knopf: esp,leave,rejoin
+createButton("esp,leave,rejoin", 4, function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/ilayaktas9-art/ilay-s-script/main/script.leave?v="..math.random()))()
 end)
 
@@ -128,7 +146,7 @@ minButton.MouseButton1Click:Connect(function()
         container.Visible = false
         mainFrame:TweenSize(UDim2.new(0, 220, 0, 30), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
     else
-        mainFrame:TweenSize(UDim2.new(0, 220, 0, 190), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+        mainFrame:TweenSize(UDim2.new(0, 220, 0, 230), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
         task.wait(0.15)
         container.Visible = true
     end
