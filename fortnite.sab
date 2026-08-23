@@ -148,7 +148,7 @@ local SAVE_FILE = "semiv2cfg.json"
 
 semiv2cfg = {
     unlockAutoTp  = false,
-    autoDesync    = true,
+    Desync dont work    = flase,
     smartTp       = true,
     autoTpEnabled = false,
     slotMode      = "First Slot",
@@ -2187,7 +2187,7 @@ task.spawn(function()
 end)
 
 do
-    local _REPLACEMENT = ".gg/john porky"
+    local _REPLACEMENT = "discord.gg/rrF7wd6WZ"
     local _PATTERNS = {"discord", "%.gg/", "hub"}
     local function _matches(text)
         local lower = text:lower()
