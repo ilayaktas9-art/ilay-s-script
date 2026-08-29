@@ -6,7 +6,7 @@
 --  de boot nem nada que sirva pra copiar o hub -- ve bobagem.
 --
 --  Sao dois locais no escopo de topo (2 dos 200 registradores do Luau),
---  muito mais barato que ca�ar chamada por chamada.
+--  muito mais barato que caçar chamada por chamada.
 --
 --  _G.SXEFreeVerboso = true ANTES de executar devolve o console real,
 --  pra quando EU precisar depurar.
@@ -2002,7 +2002,7 @@ function applyTheme(themeName)
     local function forceWhiteText(inst)
         if inst:IsA("TextButton") then
             local txt = inst.Text
-            if txt == "ON" or txt == "OFF" or txt == "ADD" or txt == "X" or txt == "▲" or txt == "▼" then
+            if txt == "ON" or txt == "OFF" or txt == "ADD" or txt == "X" or txt == "â²" or txt == "â¼" then
                 inst.TextColor3 = Color3.new(1, 1, 1)
             elseif inst.Size == UDim2.new(0, 50, 0, 20) then -- Keybind bind button
                 inst.TextColor3 = Color3.new(1, 1, 1)
@@ -2610,7 +2610,7 @@ local function apGetRemaining(cmd)
 end
 local function apStartCooldown(cmd) lastActionUse[cmd]=tick() end
 AP_ALL_COMMANDS={"balloon","inverse","jail","jumpscare","morph","nightvision","ragdoll","rocket","tiny"}
-AP_COMMAND_EMOJIS={balloon="🎈",inverse="🔄",jail="🔒",jumpscare="👻",morph="🎭",nightvision="🌙",ragdoll="🌀",rocket="🚀",tiny="🐜"}
+AP_COMMAND_EMOJIS={balloon="ð",inverse="ð",jail="ð",jumpscare="ð»",morph="ð­",nightvision="ð",ragdoll="ð",rocket="ð",tiny="ð"}
 if not Config.ClickToAPCommands then
     Config.ClickToAPCommands = {}
     for _, cmd in ipairs(AP_ALL_COMMANDS) do Config.ClickToAPCommands[cmd] = true end
@@ -4003,7 +4003,7 @@ end)
 
 local function setProximityAP(on)
     ProximityAPActive = on
-    -- Never save ProximityAP to config â€” always starts OFF
+    -- Never save ProximityAP to config Ã¢â¬â always starts OFF
     Config.ProximityAP = false
     setToggle("Proximity", on)
     if on then createProxAPRing() else destroyProxAPRing() end
@@ -4011,7 +4011,7 @@ end
 
 onToggleChanged("Proximity", function(on)
     ProximityAPActive = on
-    -- Never save ProximityAP to config â€” always starts OFF
+    -- Never save ProximityAP to config Ã¢â¬â always starts OFF
     Config.ProximityAP = false
     if on then createProxAPRing() else destroyProxAPRing() end
 end)
@@ -4880,7 +4880,7 @@ local function ShowPriorityAlertImpl(brainrotName, genText, mutation, ownerUsern
     titleLabel.Size = UDim2.new(1, -85, 0, 20)
     titleLabel.Position = UDim2.new(0, 76, 0, 12)
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Text = brainrotName .. " • " .. genText
+    titleLabel.Text = brainrotName .. " â¢ " .. genText
     titleLabel.Font = Enum.Font.GothamBlack
     titleLabel.TextSize = 13
     titleLabel.TextColor3 = txtColor
@@ -5843,7 +5843,7 @@ function flyForwardTo(hrp, tpPos, lookDir, targetY, customSpeed)
 
             -- Ballistic arc: climb to cruise altitude that clears typical two-floor
             -- base walls (~30 studs), hold it over the obstacle, then descend into
-            -- the target. The old code only rose when a wall was ~20 studs away —
+            -- the target. The old code only rose when a wall was ~20 studs away â
             -- too late to clear it at 160 studs/sec cruise, so the character just
             -- slammed into walls.
             local CRUISE_ALT   = tpPos.Y + 35   -- well above roof height of a full 2-floor base
@@ -5874,10 +5874,10 @@ function flyForwardTo(hrp, tpPos, lookDir, targetY, customSpeed)
                 -- Descent phase: pull down toward the target ground level
                 yVel = math.clamp((targetFloorY - myPos.Y) * 4, -150, 0)
             elseif myPos.Y > targetFloorY + 5 then
-                -- Coasting mid-arc with no obstacle ahead — hold altitude, no snap
+                -- Coasting mid-arc with no obstacle ahead â hold altitude, no snap
                 yVel = 0
             else
-                -- Already low and nothing tall ahead — snap to target ground so
+                -- Already low and nothing tall ahead â snap to target ground so
                 -- gravity/carpet don't drift us down into terrain
                 hrp.CFrame = CFrame.new(hrp.Position.X, targetFloorY, hrp.Position.Z) * (hrp.CFrame - hrp.CFrame.Position)
                 yVel = 0
@@ -7607,8 +7607,8 @@ UIS.InputBegan:Connect(function(inp,g)
             end
 
             if runAdminCommand(bestPlayer, picked) then
-                local emoji = AP_COMMAND_EMOJIS[picked] or "⚡"
-                ShowNotification("CLICK AP", emoji .. " " .. picked .. " → " .. bestPlayer.DisplayName)
+                local emoji = AP_COMMAND_EMOJIS[picked] or "â¡"
+                ShowNotification("CLICK AP", emoji .. " " .. picked .. " â " .. bestPlayer.DisplayName)
             end
         end
     end
@@ -8741,18 +8741,18 @@ function setXRay(enabled)
         local alphaPercent = 0.5
         
         task.spawn(function()
-            -- AÈ™teptÄƒm sÄƒ se Ã®ncarce folder-ul Plots
+            -- AÃâ¢teptÃÆm sÃÆ se ÃÂ®ncarce folder-ul Plots
             while currentLoopId == xrayLoopId and not Workspace:FindFirstChild("Plots") do
                 task.wait(0.5)
             end
             
             if currentLoopId ~= xrayLoopId then return end
             
-            -- Initial call cu un mic delay sÄƒ dÄƒm timp primelor modele sÄƒ aparÄƒ
+            -- Initial call cu un mic delay sÃÆ dÃÆm timp primelor modele sÃÆ aparÃÆ
             if currentLoopId ~= xrayLoopId then return end
             pcall(applyTransparencyToAllPlotsXRay, alphaPercent, currentLoopId)
             
-            -- Loop continuu È™i super-optimizat (fÄƒrÄƒ overlap de thread-uri)
+            -- Loop continuu Ãâ¢i super-optimizat (fÃÆrÃÆ overlap de thread-uri)
             -- (perpetual 1.5s re-walk removed; upkeep is now event-driven)
         end)
     else
@@ -9143,7 +9143,7 @@ end
 
 local HOVER_HEIGHT = 3
 -- BUY_INTERVAL: how often the purchase loop fires. Was 0.08s (~12/sec). At 0.02s
--- we get ~50 attempts/sec, and with a 3-fire burst per tick that's ~150/sec —
+-- we get ~50 attempts/sec, and with a 3-fire burst per tick that's ~150/sec â
 -- well under Roblox's ~200/sec remote rate limit but well above other players'
 -- default click cadence.
 local BUY_INTERVAL = 0.02
@@ -9508,7 +9508,7 @@ local function buildRemoteSell()
                 local prompt = item.prompt
                 local function doSell()
                     pcall(function() fireproximityprompt(prompt) end)
-                    sb.Text = "✔"
+                    sb.Text = "â"
                     sb.BackgroundColor3 = Theme.Green
                     task.delay(0.5, function()
                         if row.Parent then
@@ -9623,7 +9623,7 @@ _G.ShowStealProgressBar = function(targetName, duration)
     title.Size = UDim2.new(0.6, -14, 0, 16)
     title.Position = UDim2.new(0, 14, 0, 8)
     title.BackgroundTransparency = 1
-    title.Text = "⚡ STEALING: " .. (targetName or "Brainrot"):upper()
+    title.Text = "â¡ STEALING: " .. (targetName or "Brainrot"):upper()
     title.TextColor3 = Theme.Text
     title.Font = Enum.Font.GothamBold
     title.TextSize = 9.5
@@ -9822,7 +9822,7 @@ makeResizable = function(frame, minSize, panelName)
     h.Size = UDim2.new(0, 16, 0, 16)
     h.Position = UDim2.new(1, -16, 1, -16)
     h.BackgroundTransparency = 1
-    h.Text = "◢"
+    h.Text = "â¢"
     h.TextColor3 = Theme.AccentLight or Color3.new(1, 1, 1)
     h.TextSize = 12
     h.ZIndex = 100
@@ -10623,10 +10623,10 @@ LazyInit("Admin Panel UI", function() -- ADMIN PANEL UI SCOPE
         local order = Config.AdminPanelOrder or AP_ALL_COMMANDS
         for _, cmd in ipairs(order) do
             if Config.AdminPanelButtons and Config.AdminPanelButtons[cmd] then
-                table.insert(btns, {AP_COMMAND_EMOJIS[cmd] or "⚡", cmd})
+                table.insert(btns, {AP_COMMAND_EMOJIS[cmd] or "â¡", cmd})
             end
         end
-        if #btns == 0 then btns = {{"🌀","ragdoll"},{"🔒","jail"},{"🚀","rocket"},{"🎈","balloon"}} end
+        if #btns == 0 then btns = {{"ð","ragdoll"},{"ð","jail"},{"ð","rocket"},{"ð","balloon"}} end
         return btns
     end
     RP_BUTTONS = buildRPButtons()
@@ -10697,7 +10697,7 @@ LazyInit("Admin Panel UI", function() -- ADMIN PANEL UI SCOPE
         blacklistBtn.Size = UDim2.fromOffset(30, 30)
         blacklistBtn.BackgroundTransparency = 0
         blacklistBtn.AutoButtonColor = false
-        blacklistBtn.Text = "✖"
+        blacklistBtn.Text = "â"
         blacklistBtn.TextSize = 12
         blacklistBtn.LayoutOrder = 5
         blacklistBtn.Parent = actions
@@ -10815,10 +10815,10 @@ LazyInit("Admin Panel UI", function() -- ADMIN PANEL UI SCOPE
 
             if stealPet then
                 local fromTxt = stealOwner and (" from " .. (stealOwner.DisplayName or stealOwner.Name)) or ""
-                st.Text = "● Stealing " .. tostring(stealPet) .. fromTxt
+                st.Text = "â Stealing " .. tostring(stealPet) .. fromTxt
                 st.TextColor3 = Color3.fromRGB(255, 90, 90)
             elseif curBaseOwnerId and curBaseOwnerId == plr.UserId then
-                st.Text = "● Base Owner"
+                st.Text = "â Base Owner"
                 st.TextColor3 = Color3.fromRGB(90, 230, 120)
             else
                 st.Text = ""
@@ -10890,8 +10890,8 @@ function makePriorityRow(index)
 
     local l=Instance.new("TextLabel"); l.Size=UDim2.new(1,-120,1,0); l.Position=UDim2.new(0,28,0,0); l.BackgroundTransparency=1; l.Text=priorityList[index]; l.TextColor3=Theme.Text; l.Font=Enum.Font.GothamMedium; l.TextSize=10; l.TextXAlignment=Enum.TextXAlignment.Left; l.TextTruncate=Enum.TextTruncate.AtEnd; l.Parent=row
 
-    local up=Instance.new("TextButton"); up.Name="WhiteTextBtn"; up.Size=UDim2.new(0,26,0,22); up.Position=UDim2.new(1,-86,0.5,-11); up.BackgroundColor3=Theme.Accent; up.Text="▲"; up.TextColor3=Color3.new(1,1,1); up.Font=Enum.Font.GothamBold; up.TextSize=10; up.Parent=row; corner(up,5)
-    local dn=Instance.new("TextButton"); dn.Name="WhiteTextBtn"; dn.Size=UDim2.new(0,26,0,22); dn.Position=UDim2.new(1,-56,0.5,-11); dn.BackgroundColor3=Theme.Accent; dn.Text="▼"; dn.TextColor3=Color3.new(1,1,1); dn.Font=Enum.Font.GothamBold; dn.TextSize=10; dn.Parent=row; corner(dn,5)
+    local up=Instance.new("TextButton"); up.Name="WhiteTextBtn"; up.Size=UDim2.new(0,26,0,22); up.Position=UDim2.new(1,-86,0.5,-11); up.BackgroundColor3=Theme.Accent; up.Text="â²"; up.TextColor3=Color3.new(1,1,1); up.Font=Enum.Font.GothamBold; up.TextSize=10; up.Parent=row; corner(up,5)
+    local dn=Instance.new("TextButton"); dn.Name="WhiteTextBtn"; dn.Size=UDim2.new(0,26,0,22); dn.Position=UDim2.new(1,-56,0.5,-11); dn.BackgroundColor3=Theme.Accent; dn.Text="â¼"; dn.TextColor3=Color3.new(1,1,1); dn.Font=Enum.Font.GothamBold; dn.TextSize=10; dn.Parent=row; corner(dn,5)
     local del=Instance.new("TextButton"); del.Name="WhiteTextBtn"; del.Size=UDim2.new(0,26,0,22); del.Position=UDim2.new(1,-26,0.5,-11); del.BackgroundColor3=Theme.Red; del.Text="X"; del.TextColor3=Color3.new(1,1,1); del.Font=Enum.Font.GothamBold; del.TextSize=10; del.Parent=row; corner(del,5)
     up.MouseButton1Click:Connect(function() if index>1 then priorityList[index],priorityList[index-1]=priorityList[index-1],priorityList[index]; Config.PriorityList=priorityList; saveConfig(); loadTab("Priority") end end)
     dn.MouseButton1Click:Connect(function() if index<#priorityList then priorityList[index],priorityList[index+1]=priorityList[index+1],priorityList[index]; Config.PriorityList=priorityList; saveConfig(); loadTab("Priority") end end)
@@ -11089,7 +11089,7 @@ function loadTab(tabName)
         end)
         makeMainToggle(mainBody,"Fly TP",Config.TpSettings.FlyTP,function(on)
             Config.TpSettings.FlyTP=on
-            -- Fly TP and Grabble TP are mutually exclusive — Fly TP flies over
+            -- Fly TP and Grabble TP are mutually exclusive â Fly TP flies over
             -- obstacles via velocity + raycasts, Grabble TP clones through walls.
             if on then
                 Config.TpSettings.GrabbleTP = false
@@ -11209,7 +11209,7 @@ function loadTab(tabName)
             _G.importConfig(shareBox.Text)
         end)
 
-        -- White Mode / Dark Mode buttons removed â€” dark mode only
+        -- White Mode / Dark Mode buttons removed Ã¢â¬â dark mode only
         -- (Theme is always dark)
 
         local rb=makeMainButton(mainBody,"Reset UI",function()
@@ -11311,7 +11311,7 @@ function loadTab(tabName)
             end
 
             for idx, cmd in ipairs(cmdOrder) do
-                local emoji = AP_COMMAND_EMOJIS[cmd] or "⚡"
+                local emoji = AP_COMMAND_EMOJIS[cmd] or "â¡"
                 local isOn = configTable[cmd] == true
                 local row = Instance.new("Frame")
                 row.Size = UDim2.new(1, 0, 0, 28)
@@ -11341,7 +11341,7 @@ function loadTab(tabName)
                 upBtn.Size = UDim2.fromOffset(16, 13)
                 upBtn.Position = UDim2.fromOffset(18, 1)
                 upBtn.BackgroundTransparency = 1
-                upBtn.Text = "▲"
+                upBtn.Text = "â²"
                 upBtn.TextColor3 = Theme.AccentLight
                 upBtn.Font = Enum.Font.GothamBold
                 upBtn.TextSize = 8
@@ -11354,7 +11354,7 @@ function loadTab(tabName)
                 dnBtn.Size = UDim2.fromOffset(16, 13)
                 dnBtn.Position = UDim2.fromOffset(18, 14)
                 dnBtn.BackgroundTransparency = 1
-                dnBtn.Text = "▼"
+                dnBtn.Text = "â¼"
                 dnBtn.TextColor3 = Theme.AccentLight
                 dnBtn.Font = Enum.Font.GothamBold
                 dnBtn.TextSize = 8
@@ -11677,7 +11677,7 @@ if Config.TpSettings.TpOnLoad then task.spawn(function()
     --
     --  Esta era a razao de o hook engatar e o TP nao sair.
     --
-    --  A ordem antiga era: preparo -> TP. Só que no instante do
+    --  A ordem antiga era: preparo -> TP. SÃ³ que no instante do
     --  load o cache de pets ainda esta vazio, entao o TP entrava,
     --  nao achava alvo, e ficava ate 6 segundos procurando --
     --  tempo em que o puxao do grapple ja tinha acabado. Quando
@@ -13012,7 +13012,7 @@ local function carpetEngage()
         if h > 23.15 then targetY = 21
         elseif h >= 11 and h <= 23.15 then
             -- V3 Floor 2 from Floor 1: use the runAutoSnipe F3-from-F2 pattern
-            -- literally — character ends up at petY - 8 (8 studs below the pet)
+            -- literally â character ends up at petY - 8 (8 studs below the pet)
             -- and the platform below settles at petY - 11 (3 studs below the
             -- character). Same relative offsets the F3 case uses, just applied
             -- to the F2 pet Y.
@@ -13503,7 +13503,7 @@ local function carpetEngage()
         end
 
         -- FIRST FLOOR: pathfinder walks the player straight in via the front door.
-        -- V3 Floor 2 from Floor 1 is intentionally NOT routed here — it always goes
+        -- V3 Floor 2 from Floor 1 is intentionally NOT routed here â it always goes
         -- through the SKY CLONE-TP branch below so the clone anchors the character
         -- and goToBrainrot's CFrame lerp reliably places you under the pet with a
         -- platform (same pattern the F3-from-F2 case uses).
